@@ -1,4 +1,4 @@
-OpenFire is a top-down bullet hell shooter inspired by CrossFire game (1981 by Jay Sullivan)
+OpenFire is a top-down bullet hell shooter inspired by CrossFire game (1981 by Jay Sullivan) written in Castle Game Engine (Lazarus / Free Pascal)
 
 The goal of the game is to eliminate all enemy bots. Use arrow keys to move and WASD to fire at 4 directions (hold down the button for rapid fire). Player has 200 HP until death... and that's not much...
 You can move only vertical or horizontal direction at the same time, and movement automatically stops at crossroads (you can invert the movement direction).
