@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <ProjectSession>
+    <PathDelim Value="\"/>
+    <Version Value="9"/>
+    <BuildModes Active="Release"/>
+    <Units Count="8">
+      <Unit0>
+        <Filename Value="Crossfire.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <IsVisibleTab Value="True"/>
+        <CursorPos Y="16"/>
+        <UsageCount Value="31"/>
+        <Loaded Value="True"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="V:\CGE\castle-engine\src\window\castlewindow.pas"/>
+        <UnitName Value="CastleWindow"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1604"/>
+        <CursorPos X="14" Y="1611"/>
+        <UsageCount Value="10"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="V:\CGE\castle-engine\src\ui\castleuicontrols.pas"/>
+        <UnitName Value="CastleUIControls"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="37"/>
+        <CursorPos X="98" Y="45"/>
+        <UsageCount Value="10"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="V:\CGE\castle-engine\src\ui\castlekeysmouse.pas"/>
+        <UnitName Value="CastleKeysMouse"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="111"/>
+        <CursorPos X="3" Y="48"/>
+        <UsageCount Value="10"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="V:\CGE\castle-engine\src\images\opengl\castleglimages_tglimage.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="194"/>
+        <CursorPos X="15" Y="203"/>
+        <UsageCount Value="10"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="E:\PROGR\lazarus\fpc\3.0.0\source\rtl\inc\systemh.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="784"/>
+        <CursorPos X="11" Y="793"/>
+        <UsageCount Value="9"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="E:\PROGR\lazarus\fpc\3.0.0\source\rtl\inc\system.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="633"/>
+        <CursorPos X="3" Y="635"/>
+        <UsageCount Value="9"/>
+      </Unit6>
+      <Unit7>
+        <Filename Value="E:\PROGR\lazarus\fpc\3.0.0\source\rtl\inc\objpash.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="193"/>
+        <CursorPos X="21" Y="202"/>
+        <UsageCount Value="10"/>
+      </Unit7>
+    </Units>
+    <JumpHistory Count="30" HistoryIndex="29">
+      <Position1>
+        <Filename Value="Crossfire.lpr"/>
+        <Caret Line="288" Column="15" TopLine="273"/>
+      </Position1>
+      <Position2>
+        <Filename Value="Crossfire.lpr"/>
+        <Caret Line="175" Column="64" TopLine="170"/>
+      </Position2>
+      <Position3>
+        <Filename Value="Crossfire.lpr"/>
+      </Position3>
+      <Position4>
+        <Filename Value="Crossfire.lpr"/>
+        <Caret Line="298" Column="13" TopLine="286"/>
+      </Position4>
+      <Position5>
+        <Filename Value="Crossfire.lpr"/>
+        <Caret Line="274" Column="34" TopLine="268"/>
+      </Position5>
+      <Position6>
+        <Filename Value="Crossfire.lpr"/>
+      </Position6>
+      <Position7>
+        <Filename Value="Crossfire.lpr"/>
+        <Caret Line="40" Column="20" TopLine="26"/>
+      </Position7>
+      <Position8>
+        <Filename Value="Crossfire.lpr"/>
+        <Caret Line="166" Column="23" TopLine="150"/>
+      </Position8>
+      <Position9>
+        <Filename Value="Crossfire.lpr"/>
+        <Caret Line="216" Column="10" TopLine="201"/>
+      </Position9>
+      <Position10>
+        <Filename Value="Crossfire.lpr"/>
+        <Caret Line="273" Column="30" TopLine="260"/>
+      </Position10>
+      <Position11>
+        <Filename Value="Crossfire.lpr"/>
+      </Position11>
+      <Position12>
+        <Filename Value="Crossfire.lpr"/>
+        <Caret Line="40" Column="20" TopLine="26"/>
+      </Position12>
+      <Position13>
+        <Filename Value="Crossfire.lpr"/>
+        <Caret Line="166" Column="23" TopLine="150"/>
+      </Position13>
+      <Position14>
+        <Filename Value="Crossfire.lpr"/>
+        <Caret Line="216" Column="10" TopLine="201"/>
+      </Position14>
+      <Position15>
+        <Filename Value="Crossfire.lpr"/>
+        <Caret Line="258" Column="26" TopLine="248"/>
+      </Position15>
+      <Position16>
+        <Filename Value="Crossfire.lpr"/>
+      </Position16>
+      <Position17>
+        <Filename Value="Crossfire.lpr"/>
+        <Caret Line="435" Column="45" TopLine="424"/>
+      </Position17>
+      <Position18>
+        <Filename Value="Crossfire.lpr"/>
+        <Caret Line="420" Column="42" TopLine="415"/>
+      </Position18>
+      <Position19>
+        <Filename Value="Crossfire.lpr"/>
+        <Caret Line="216" Column="33" TopLine="210"/>
+      </Position19>
+      <Position20>
+        <Filename Value="Crossfire.lpr"/>
+        <Caret Line="57" Column="58" TopLine="52"/>
+      </Position20>
+      <Position21>
+        <Filename Value="Crossfire.lpr"/>
+        <Caret Line="65" Column="21" TopLine="52"/>
+      </Position21>
+      <Position22>
+        <Filename Value="Crossfire.lpr"/>
+        <Caret Line="437" Column="15" TopLine="426"/>
+      </Position22>
+      <Position23>
+        <Filename Value="Crossfire.lpr"/>
+        <Caret Line="441" Column="45" TopLine="426"/>
+      </Position23>
+      <Position24>
+        <Filename Value="Crossfire.lpr"/>
+      </Position24>
+      <Position25>
+        <Filename Value="Crossfire.lpr"/>
+        <Caret Line="176" Column="24" TopLine="173"/>
+      </Position25>
+      <Position26>
+        <Filename Value="Crossfire.lpr"/>
+        <Caret Line="405" Column="11" TopLine="390"/>
+      </Position26>
+      <Position27>
+        <Filename Value="Crossfire.lpr"/>
+        <Caret Line="390" Column="65" TopLine="386"/>
+      </Position27>
+      <Position28>
+        <Filename Value="Crossfire.lpr"/>
+      </Position28>
+      <Position29>
+        <Filename Value="Crossfire.lpr"/>
+        <Caret Line="169" Column="26" TopLine="160"/>
+      </Position29>
+      <Position30>
+        <Filename Value="Crossfire.lpr"/>
+        <Caret Line="13" Column="46"/>
+      </Position30>
+    </JumpHistory>
+  </ProjectSession>
+</CONFIG>
