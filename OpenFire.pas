@@ -24,8 +24,8 @@ uses {$IFDEF UNIX}cthreads,{$ENDIF} Classes, SysUtils,
   CastleKeysMouse;
 
 const maxx=2*6; {not odd}
-      maxy=maxx;
-      nenemies=maxx*4 div 2;
+      maxy=2*5;
+      nenemies=maxx+maxy;
       scale=48; {square image size}
       simultaneous_active=3;//round(sqrt(nenemies));
       missle_explosion=10;
@@ -47,6 +47,7 @@ type TBot=class(TObject)
   start_x,start_y:integer;
   lastx,lasty,nextx,nexty:integer;
   BotType:TBotType;
+  BornToBeABoss:integer;
   LastFireTime:TDateTime;
   FireRate:double;
   mobility:double;
@@ -56,9 +57,12 @@ type TBot=class(TObject)
   countdown,explosiontype:integer;
   procedure move(dx,dy:shortint);
   procedure fire(dx,dy:shortint);
+  procedure PlayerFire(dx,dy:shortint);
+  procedure doPlayerFire;
   procedure doMove;
   procedure doDraw;
   procedure doAI;
+  procedure SayHi;
   procedure hitme;
   procedure EndMyLife;
   procedure resetMe;
@@ -98,7 +102,11 @@ var Window:TCastleWindow;
   sndPlayerHit:array[1..6] of TSoundBuffer;
   sndBotHit:array[1..9] of TSoundBuffer;
   sndExplosion:TSoundBuffer;
-  sndBotEntersTheStage:TSoundBuffer;
+  nvoices:integer;
+  sndVoice:array of TSoundBuffer;
+  voiceDuration:array of TFloatTime;
+  MyVoiceTimer:TDateTime;
+  LastVoice:integer=-1;
   //music
   music: TSoundBuffer;
   music_duration: TFloatTime;
@@ -115,6 +123,13 @@ var Window:TCastleWindow;
   activebots, enemiesalive: integer;
   lastframe:TDateTime;
   timePassed:double;
+  //gui
+  GameScreenStartX,GameScreenEndX:integer;
+  FirePressed{,mousefire}:boolean;
+  LastFireKeyPress:TKey;
+  FireX,FireY:shortint;
+
+{$R+}{$Q+}
 
 {------------------------------------------------------------------------------------}
 {====================================================================================}
@@ -127,19 +142,64 @@ end;
 
 
 procedure KeyPress(Container: TUIContainer; const Event: TInputPressRelease);
+var dx,dy:single;
 begin
+{  mouseFire:=false;}
   if bots[0].hp>0 then
   case Event.Key of
     k_up:    bots[0].move(0,+1);
     k_down:  bots[0].move(0,-1);
     k_right: bots[0].move(+1,0);
     k_left:  bots[0].move(-1,0);
-    k_w:     bots[0].fire(0,+1);
-    k_s:     bots[0].fire(0,-1);
-    k_d:     bots[0].fire(+1,0);
-    k_a:     bots[0].fire(-1,0);
+    k_w:     begin bots[0].PlayerFire(0,+1); lastFireKeyPress:=Event.Key; end;
+    k_s:     begin bots[0].PlayerFire(0,-1); lastFireKeyPress:=Event.Key; end;
+    k_d:     begin bots[0].PlayerFire(+1,0); lastFireKeyPress:=Event.Key; end;
+    k_a:     begin bots[0].PlayerFire(-1,0); lastFireKeyPress:=Event.Key; end;
+    K_None:
+      if event.MouseButton=mbLeft then begin
+          if (Event.Position[0]>GameScreenStartX) and (Event.Position[0]<GameScreenEndX) then begin
+            //do game
+    {        mousefire:=true;}
+            dx:=(Event.Position[0]-GameScreenStartX)-(bots[0].x+0.5)*scale;
+            dy:=(Event.Position[1])-(bots[0].y+0.5)*scale;
+            if abs(dx)>abs(dy) then begin
+              if (dx<0) then bots[0].Move(-1,0) else bots[0].Move(+1,0);
+            end else begin
+              if (dy<0) then bots[0].Move(0,-1) else bots[0].Move(0,+1);
+            end;
+          end else begin
+            //do side menu
+          end;
+      end;
   end;
 end;
+
+procedure KeyRelease(Container: TUIContainer; const Event: TInputPressRelease);
+begin
+  //if (bots[0].hp>0) and (FirePressed) then
+  case Event.Key of
+    k_w,k_s,k_d,k_a: {begin   } if event.Key=LastFireKeyPress then FirePressed:=false;{mousefire:=false; end; }
+  end;
+ { if event.MouseButton = mbLeft then begin
+    FirePressed:=false;
+    mousefire:=false;
+  end;   }
+end;
+
+{procedure KeyMotion(Container: TUIContainer; const Event: TInputMotion);
+var dx,dy:single;
+begin
+ if mousefire then begin
+   dx:=(Event.Position[0]-GameScreenStartX)-(bots[0].x-0.5)*scale;
+   dy:=(Event.Position[1])-(bots[0].y-0.5)*scale;
+   if abs(dx)>abs(dy) then begin
+     if (dx<0) then bots[0].PlayerFire(-1,0) else bots[0].PlayerFire(+1,0);
+   end else begin
+     if (dy<0) then bots[0].PlayerFire(0,-1) else bots[0].PlayerFire(0,+1);
+   end;
+
+ end;
+end;            }
 
 {------------------------------------------------------------------------------------}
 {====================================================================================}
@@ -216,9 +276,9 @@ begin
   my:=round((y-12/128*thisscale/round(scale*24/128))*scale);
   //doesn't accessing 128th x of the 12x image cause memory failure???
   case MissleType of
-    botplayer: playermissle.draw(mx,my,thisscale,thisscale,0,0,24,24);
-    bot1,bot2,bot3: enemymissle.draw(mx,my,thisscale,thisscale,0,0,24,24);
-    botboss: bossmissle.draw(mx,my,thisscale,thisscale,0,0,24,24);
+    botplayer: playermissle.draw(GameScreenStartX+mx,my,thisscale,thisscale,0,0,24,24);
+    bot1,bot2,bot3: enemymissle.draw(GameScreenStartX+mx,my,thisscale,thisscale,0,0,24,24);
+    botboss: bossmissle.draw(GameScreenStartX+mx,my,thisscale,thisscale,0,0,24,24);
   end;
 end;
 
@@ -263,21 +323,28 @@ end;
 procedure TBot.resetMe;
 begin
   lastFireTime:=now;
-  BotSpeed:= 2;
   vx:=0;vy:=0;
   if BotType=botplayer then isHidden:=false else isHidden:=true;
+
   case botType of
     botplayer: maxHp:=200;
     bot1:      maxHp:=20;
     bot2:      maxHp:=40;
-    bot3:      maxHp:=100;
-    botBoss:   MaxHp:=300;
+    bot3:      maxHp:=70;
+    botBoss:   MaxHp:=250;
+  end;
+  case botType of
+    botplayer: BotSpeed:= 2;
+    bot1:      BotSpeed:= 3;
+    bot2:      BotSpeed:= 2;
+    bot3:      BotSpeed:= 2.1;
+    botBoss:   BotSpeed:= 1.9;
   end;
   case botType of
     bot1:      Mobility:=0.05;
     bot2:      Mobility:=0.1;
     bot3:      Mobility:=0.2;
-    botBoss:   Mobility:=0.9;
+    botBoss:   Mobility:=0.075;
   end;
   isMoving:=false;
   hp:=maxHp;
@@ -296,6 +363,7 @@ var i:integer;
 begin
   inherited create;
   bottype:=ThisBotType;
+  BornToBeABoss:=0;
   if ThisBotType=botplayer then begin
     FireRate:= 0.03/24/60/60;{3 shots/sec}
     start_x:=maxx div 2; if odd((start_x)) then start_x-=1;
@@ -360,7 +428,7 @@ begin
 //  for i:=low(bots) to high(bots) do if (bots[i].lastX=tryNextX) and (bots[i].lastY=tryNextY) then MoveAllowed:=false;
   //finally if move is allowed
   if MoveAllowed then begin
-    if isHidden then SoundEngine.PlaySound(sndBotEntersTheStage, false, false, 1, 0.6, 0, 1, ZeroVector3Single);
+    if isHidden then SayHi;
     isHidden:=false; {for enemy bots - if they can move they leave the cover}
     vx:=tryNewVX;
     vy:=tryNewVY;
@@ -371,6 +439,32 @@ begin
   end;
 end;
 
+procedure TBot.SayHi;
+var PlayVoice:integer;
+begin
+  if (Now>MyVoiceTimer) then begin
+    Repeat
+      PlayVoice:=random(nVoices);
+    until (PlayVoice<>lastVoice) or (nVoices=1);
+    SoundEngine.PlaySound(sndVoice[PlayVoice], false, false, 1, 0.7, 0, 1, ZeroVector3Single);
+    MyVoiceTimer:=now+VoiceDuration[PlayVoice]/60/60/24;
+    LastVoice:=PlayVoice;
+  end;
+end;
+
+procedure TBot.PlayerFire(dx,dy:shortint);
+begin
+ FireX:=dx;
+ FireY:=dy;
+ FirePressed:=true;
+end;
+
+procedure TBot.DoPlayerFire;
+begin
+  if FirePressed then fire(FireX,FireY);
+end;
+
+
 procedure TBot.fire(dx,dy:shortint);
 var FireAllowed:boolean;
 begin
@@ -378,6 +472,11 @@ begin
     FireAllowed:=true;
     if (dx<>0) and (vy<>0) then FireAllowed:=false;
     if (dy<>0) and (vx<>0) then FireAllowed:=false;
+    {bot specific tweaks}
+    if (x<2) and (dx<>1) then FireAllowed:=false;
+    if (y<2) and (dy<>1) then FireAllowed:=false;
+    if (x>maxx-2) and (dx<>-1) then FireAllowed:=false;
+    if (y>maxy-2) and (dy<>-1) then FireAllowed:=false;
     if FireAllowed then begin
       if bottype=botplayer then
         SoundEngine.PlaySound(sndPlayerShot, false, false, 0, 0.5, 0, 1, ZeroVector3Single)
@@ -406,7 +505,8 @@ begin
     bottype:=bot3;
     fireRate:=fireRate/3;
     ResetMe;
-  end else if (bottype=bot3) and (random<0.1) then begin
+  end else if (bottype=bot3) and (BornToBeABoss>0) then begin
+    //todo: select boss based on BornToBeABoss
     bottype:=botboss;
     fireRate:=fireRate/10;
     ResetMe;
@@ -417,12 +517,12 @@ end;
 procedure TBot.doDraw;
 begin
   if hp>0 then
-    botsImg[bottype].draw(round(x*scale),round(y*scale),scale,scale,0,0,128,128)
+    botsImg[bottype].draw(GameScreenStartX+round(x*scale),round(y*scale),scale,scale,0,0,128,128)
   else if countdown>0 then begin
     dec(countdown);
     vx:=vx/1.01;
     vy:=vy/1.01;
-    explosionImg[explosionType].draw(round((x-1.5)*scale),round((y-1.5)*scale),scale*4,scale*4,100*((100-countdown) mod 10),1024-100-100*((100-countdown) div 10),100,100);
+    explosionImg[explosionType].draw(GameScreenStartX+round((x-1.5)*scale),round((y-1.5)*scale),scale*4,scale*4,100*((100-countdown) mod 10),1024-100-100*((100-countdown) div 10),100,100);
     if countdown=0 then endMyLife;
   end;
 end;
@@ -489,10 +589,10 @@ begin
       1: if not isMoving and (random<Mobility) then move(0,-1);
       2: if not isMoving and (random<Mobility) then move(+1,0);
       3: if not isMoving and (random<Mobility) then move(-1,0);
-      4: fire(0,+1);
-      5: fire(0,-1);
-      6: fire(+1,0);
-      7: fire(-1,0);
+      4: if bots[0].y-y>0 then fire(0,+1);
+      5: if bots[0].y-y<0 then fire(0,-1);
+      6: if bots[0].x-x>0 then fire(+1,0);
+      7: if bots[0].x-x<0 then fire(-1,0);
     end;
   end;
 end;
@@ -503,18 +603,31 @@ end;
 
 procedure doStartGame;
 var i:integer;
+    bosses:integer;
 begin
   randomize;
   nmissles:=0;
   setlength(bots,nenemies+1);
   bots[0]:=TBot.create(botplayer);
   for i:=1 to high(bots) do bots[i]:=TBot.create(bot1);
+  bosses:=2;
+  repeat
+    i:=1+random(nenemies-1);
+    if bots[i].BornToBeABoss=0 then begin
+      bots[i].BornToBeABoss:=1;
+      dec(bosses);
+    end;
+  until bosses=0;
+  FirePressed:=false;
+  LastFireKeyPress:=k_none;
+  //MouseFire:=false;
 end;
 
 {------------------------------------------------------------------------------------}
 
 procedure doLoadGameData;
 var i:TBotType;
+    j:integer;
 begin
   lastFrame:=now;
   //load TGLImages
@@ -531,8 +644,8 @@ begin
   PlayerMissle:=TGLImage.create(BotFolder+'playermissle.png');
   EnemyMissle:=TGLImage.create(BotFolder+'enemymissle.png');
   BossMissle:=TGLImage.create(BotFolder+'bossmissle.png');
-  EmptyBar:=TGLImage.create(GuiFolder+'SleekBars_CC0_by_Janna(opengameart)_empty.png');
-  HealthBar:=TGLImage.create(GuiFolder+'SleekBars_CC0_by_Janna(opengameart)_full.png');
+  EmptyBar:=TGLImage.create(GuiFolder+'SleekBars_CC0_by_Jannax(opengameart)_empty.png');
+  HealthBar:=TGLImage.create(GuiFolder+'SleekBars_CC0_by_Jannax(opengameart)_full.png');
   explosionImg[1]:=TGlImage.create(ExpFolder+'explosion3_CC0_by_StumpyStrust.png');
   explosionImg[2]:=TGlImage.create(ExpFolder+'explosion6a_CC0_by_StumpyStrust.png');
   explosionImg[3]:=TGlImage.create(ExpFolder+'explosion6b_CC0_by_StumpyStrust.png');
@@ -540,9 +653,6 @@ begin
   explosionImg[5]:=TGlImage.create(ExpFolder+'explosion9_CC0_by_StumpyStrust.png');
   explosionImg[6]:=TGlImage.create(ExpFolder+'explosion10_CC0_by_StumpyStrust.png');
   //load sounds as TSoundBuffer
-  {MusFolder= 'DAT'+pathdelim+'music'+pathdelim;
-  SndFolder= 'DAT'+pathdelim+'sound'+pathdelim;
-  VocFolder= 'DAT'+pathdelim+'voice'+pathdelim;}
   SndPlayerShot:= SoundEngine.LoadBuffer(SndFolder+'bookOpen_CC0_by_Kenney.nl.ogg');
   SndBotShot1:= SoundEngine.LoadBuffer(SndFolder+'beltHandle1_CC0_by_Kenney.nl.ogg');
   SndBotShot2:= SoundEngine.LoadBuffer(SndFolder+'beltHandle2_CC0_by_Kenney.nl.ogg');
@@ -562,7 +672,21 @@ begin
   sndBotHit[8]:= SoundEngine.LoadBuffer(SndFolder+'footstep08_CC0_by_Kenney.nl.ogg');
   sndBotHit[9]:= SoundEngine.LoadBuffer(SndFolder+'footstep09_CC0_by_Kenney.nl.ogg');
   sndExplosion:=  SoundEngine.LoadBuffer(SndFolder+'explosion_CC0_by_Independent.nu.ogg');
-  sndBotEntersTheStage:=  SoundEngine.LoadBuffer(VocFolder+'anchor_action_CC0_by_legoluft.ogg');
+  //load voice file
+{  nVoices:=12;
+  setlength(sndVoice,nVoices);
+  setlength(VoiceDuration,nVoices);
+  for j:=0 to nVoices-1 do
+    sndVoice[j]:=  SoundEngine.LoadBuffer(VocFolder+'phrase1-'+inttostr(j+1)+'.ogg',VoiceDuration[j]);}
+{  nVoices:=16;
+  setlength(sndVoice,nVoices);
+  setlength(VoiceDuration,nVoices);
+  for j:=0 to nVoices-1 do
+    sndVoice[j]:=  SoundEngine.LoadBuffer(VocFolder+'phrase2-'+inttostr(j+1)+'.ogg',VoiceDuration[j]);}
+  nVoices:=1;
+  setlength(sndVoice,nVoices);
+  setlength(VoiceDuration,nVoices);
+ sndVoice[0]:=  SoundEngine.LoadBuffer(VocFolder+'anchor_action_CC0_by_legoluft.ogg',VoiceDuration[0]);
   //initialize Sound Engine
   SoundEngine.ParseParameters;
   SoundEngine.MinAllocatedSources := 1;
@@ -570,8 +694,9 @@ begin
   doStartGame;
   //and launch music
   oldMusic:=-1;
+  MyVoiceTimer:=now;
   MyMusicTimer:=Now;
-  Music_duration:=3;  {a few seconds of silence}
+  Music_duration:=0;  {a few seconds of silence}
 end;
 
 {------------------------------------------------------------------------------------}
@@ -582,10 +707,10 @@ begin
 for ix:=0 to maxx do
  for iy:=0 to maxy do if odd(ix) and odd(iy) then begin
      //draw wall
-     wall.Draw(ix*scale,iy*scale,scale,scale,0,0,128,128);
+     wall.Draw(GameScreenStartX+ix*scale,iy*scale,scale,scale,0,0,128,128);
    end else begin
      //draw pass
-     pass.Draw(ix*scale,iy*scale,scale,scale,0,0,128,128);
+     pass.Draw(GameScreenStartX+ix*scale,iy*scale,scale,scale,0,0,128,128);
    end;
 end;
 
@@ -599,10 +724,10 @@ end;
 procedure doDrawInterface;
 var medianW,median128:integer;
 begin
-  medianW:=round(window.width*bots[0].hp / bots[0].maxHp);
+  medianW:=round((GameScreenEndX-GameScreenStartX)*bots[0].hp / bots[0].maxHp);
   median128:=round(118*bots[0].hp / bots[0].maxHp);
-  HealthBar.Draw(0,window.height-32,medianW,32,0,0,median128,32);
-  emptyBar.Draw(medianW,window.height-32,window.width-medianW,32,median128,0,118,32);
+  HealthBar.Draw(GameScreenStartX+0,window.height-32,medianW,32,0,0,median128,32);
+  emptyBar.Draw(GameScreenStartX+medianW,window.height-32,window.width-medianW,32,median128,0,118,32);
 end;
 
 procedure doDisplayImages;
@@ -617,6 +742,8 @@ var i,nm:integer;
     enemyPower:integer;
 begin
   activebots:=0;enemiesalive:=0;enemyPower:=0;
+  bots[0].DoPlayerFire;
+
   for i:=1 to high(bots) do if (bots[i].hp>0) then begin
     inc(enemiesalive);
     if not bots[i].isHidden then begin
@@ -660,14 +787,19 @@ end;
 {====================================================================================}
 {------------------------------------------------------------------------------------}
 
+var RenderingBuisy:boolean=false;
 procedure doRender(Container: TUIContainer);
 begin
   if firstrender then doLoadGameData;
   timePassed:=(now-lastFrame)*24*60*60; {sec}
   doGame;
 
-  doDisplayImages;
+  if not RenderingBuisy then begin
+    RenderingBuisy:=true;
+    doDisplayImages;
 
+    RenderingBuisy:=false;
+  end {else increase frameskip};
   lastFrame:=now;
   firstrender:=false;
 end;
@@ -693,9 +825,14 @@ music_context:=music_easy;
 Window:=TCastleWindow.create(Application);
 window.DoubleBuffer:=true;
 window.OnPress:=@KeyPress;
+window.onRelease:=@KeyRelease;
+//window.OnMotion:=@KeyMotion;
 window.OnRender:=@doRender;
 window.Width:=(maxx+1)*scale;
 window.height:=(maxy+1)*scale+32;
+GameScreenStartX:=0;
+GameScreenEndX:=(maxx+1)*scale;
+
 application.TimerMilisec:=1000 div 60; //60 fps
 application.OnTimer:=@dotimer;
 {=== this will start the game ===}
