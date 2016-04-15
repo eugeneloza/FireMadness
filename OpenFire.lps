@@ -4,14 +4,14 @@
     <PathDelim Value="\"/>
     <Version Value="9"/>
     <BuildModes Active="Default"/>
-    <Units Count="10">
+    <Units Count="11">
       <Unit0>
         <Filename Value="OpenFire.pas"/>
         <IsPartOfProject Value="True"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="792"/>
-        <CursorPos Y="814"/>
-        <UsageCount Value="79"/>
+        <TopLine Value="618"/>
+        <CursorPos X="79" Y="635"/>
+        <UsageCount Value="82"/>
         <Loaded Value="True"/>
       </Unit0>
       <Unit1>
@@ -82,126 +82,136 @@
         <CursorPos Y="1282"/>
         <UsageCount Value="10"/>
       </Unit9>
+      <Unit10>
+        <Filename Value="..\..\..\..\..\..\..\home\eugene\castle-engine\src\ui\castlekeysmouse.pas"/>
+        <UnitName Value="CastleKeysMouse"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="48"/>
+        <CursorPos X="13" Y="54"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+      </Unit10>
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="392" Column="18" TopLine="373"/>
+        <Caret Line="473" Column="43" TopLine="454"/>
       </Position1>
       <Position2>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="460" Column="24" TopLine="441"/>
+        <Caret Line="633" Column="17" TopLine="618"/>
       </Position2>
       <Position3>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="497" Column="20" TopLine="478"/>
+        <Caret Line="491" TopLine="486"/>
       </Position3>
       <Position4>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="549" Column="55" TopLine="530"/>
+        <Caret Line="492" TopLine="486"/>
       </Position4>
       <Position5>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="550" Column="42" TopLine="531"/>
+        <Caret Line="493" TopLine="486"/>
       </Position5>
       <Position6>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="551" Column="41" TopLine="532"/>
+        <Caret Line="495" TopLine="486"/>
       </Position6>
       <Position7>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="555" Column="48" TopLine="536"/>
+        <Caret Line="496" TopLine="486"/>
       </Position7>
       <Position8>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="557" Column="45" TopLine="538"/>
+        <Caret Line="497" TopLine="486"/>
       </Position8>
       <Position9>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="592" Column="129" TopLine="573"/>
+        <Caret Line="491" TopLine="486"/>
       </Position9>
       <Position10>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="594" Column="50" TopLine="575"/>
+        <Caret Line="492" TopLine="486"/>
       </Position10>
       <Position11>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="595" Column="50" TopLine="576"/>
+        <Caret Line="493" TopLine="486"/>
       </Position11>
       <Position12>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="599" Column="16" TopLine="580"/>
+        <Caret Line="495" TopLine="486"/>
       </Position12>
       <Position13>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="600" Column="37" TopLine="581"/>
+        <Caret Line="496" TopLine="486"/>
       </Position13>
       <Position14>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="601" Column="37" TopLine="582"/>
+        <Caret Line="497" TopLine="486"/>
       </Position14>
       <Position15>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="602" Column="37" TopLine="583"/>
+        <Caret Line="498" TopLine="486"/>
       </Position15>
       <Position16>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="603" Column="37" TopLine="584"/>
+        <Caret Line="499" TopLine="499"/>
       </Position16>
       <Position17>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="620" Column="9" TopLine="601"/>
+        <Caret Line="514" TopLine="499"/>
       </Position17>
       <Position18>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="594" Column="50" TopLine="575"/>
+        <Caret Line="515" TopLine="499"/>
       </Position18>
       <Position19>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="595" Column="50" TopLine="576"/>
+        <Caret Line="627" TopLine="616"/>
       </Position19>
       <Position20>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="599" Column="16" TopLine="580"/>
+        <Caret Line="491" TopLine="479"/>
       </Position20>
       <Position21>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="600" Column="37" TopLine="581"/>
+        <Caret Line="492" TopLine="479"/>
       </Position21>
       <Position22>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="601" Column="37" TopLine="582"/>
+        <Caret Line="493" TopLine="479"/>
       </Position22>
       <Position23>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="602" Column="37" TopLine="583"/>
+        <Caret Line="495" TopLine="479"/>
       </Position23>
       <Position24>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="603" Column="37" TopLine="584"/>
+        <Caret Line="496" TopLine="479"/>
       </Position24>
       <Position25>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="620" Column="9" TopLine="601"/>
+        <Caret Line="497" TopLine="479"/>
       </Position25>
       <Position26>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="619" Column="6" TopLine="608"/>
+        <Caret Line="498" TopLine="479"/>
       </Position26>
       <Position27>
         <Filename Value="OpenFire.pas"/>
+        <Caret Line="499" TopLine="480"/>
       </Position27>
       <Position28>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="126" Column="22" TopLine="107"/>
+        <Caret Line="514" TopLine="504"/>
       </Position28>
       <Position29>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="592" Column="127" TopLine="573"/>
+        <Caret Line="515" TopLine="504"/>
       </Position29>
       <Position30>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="711" TopLine="693"/>
+        <Caret Line="627" TopLine="616"/>
       </Position30>
     </JumpHistory>
   </ProjectSession>

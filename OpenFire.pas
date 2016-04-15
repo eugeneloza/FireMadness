@@ -57,7 +57,7 @@ type TBot=class(TObject)
   isHidden,isMoving:boolean;
   countdown,explosiontype:integer;
   procedure move(dx,dy:shortint);
-  procedure fire(dx,dy:shortint);
+  function fire(dx,dy:shortint):boolean;
   procedure PlayerFire(dx,dy:shortint);
   procedure doPlayerFire;
   procedure doMove;
@@ -128,6 +128,7 @@ var Window:TCastleWindow;
   GameScreenStartX,GameScreenEndX:integer;
   FirePressed{,mousefire}:boolean;
   LastFireKeyPress:TKey;
+  PauseMode:boolean=false;
   FireX,FireY:shortint;
 
 {$R+}{$Q+}
@@ -145,6 +146,7 @@ end;
 procedure KeyPress(Container: TUIContainer; const Event: TInputPressRelease);
 var dx,dy:float;
 begin
+ PauseMode:=false;
  if not firstrender then begin
 {  mouseFire:=false;}
   if bots[0].hp>0 then
@@ -157,6 +159,7 @@ begin
     k_s:     begin bots[0].PlayerFire(0,-1); lastFireKeyPress:=Event.Key; end;
     k_d:     begin bots[0].PlayerFire(+1,0); lastFireKeyPress:=Event.Key; end;
     k_a:     begin bots[0].PlayerFire(-1,0); lastFireKeyPress:=Event.Key; end;
+    K_Pause: pauseMode:=not PauseMode;
     K_None:
       if event.MouseButton=mbLeft then begin
           if (Event.Position[0]>GameScreenStartX) and (Event.Position[0]<GameScreenEndX) then begin
@@ -300,6 +303,7 @@ begin
   newx:=x+vx*MissleSpeed*(now-LastActionTimer)*60*60*24;
   newy:=y+vy*MissleSpeed*(now-LastActionTimer)*60*60*24;
   LastActionTimer:=now;
+ if not pauseMode then begin
   missle_lives:=true;
   if (newx<0) or (newx>maxx+1) or (newy<0) or (newy>maxy+1) then missle_lives:=false;
   //check target hit
@@ -319,6 +323,7 @@ begin
     isAlive:=false;
     countdown:=missle_explosion;
   end;
+ end;
 end;
 
 {------------------------------------------------------------------------------------}
@@ -478,11 +483,12 @@ begin
 end;
 
 
-procedure TBot.fire(dx,dy:shortint);
+function TBot.fire(dx,dy:shortint):boolean;
 var FireAllowed:boolean;
 begin
+  FireAllowed:=true;
+  if PauseMode then LastFireTime:=now+(now-lastFireTime);
   if (now-lastFireTime)>=FireRate then begin
-    FireAllowed:=true;
     if (dx<>0) and ((vy<>0) and ((abs(round(y)-y)>0.3) or odd(round(y))) ) then FireAllowed:=false;
     if (dy<>0) and ((vx<>0) and ((abs(round(x)-x)>0.3) or odd(round(x))) ) then FireAllowed:=false;
     {bot specific tweaks}
@@ -505,6 +511,7 @@ begin
       lastFireTime:=now;
     end;
   end;
+  Result:=FireAllowed;
 end;
 
 procedure TBot.EndMyLife;
@@ -565,6 +572,7 @@ if lastActionTimer=-1 then LastActionTimer:=now;
   newx:=x+vx*botSpeed*(now-LastActionTimer)*60*60*24;
   newy:=y+vy*botSpeed*(now-LastActionTimer)*60*60*24;
   LastActionTimer:=now;
+ if not PauseMode then begin
  if (vx<>0) or (vy<>0) then begin
    isMoving:=true;
   if hp>0 then begin // add some inertia if the bot explodes onmove
@@ -580,32 +588,54 @@ if lastActionTimer=-1 then LastActionTimer:=now;
     lasty:=nexty;
   end;
  end;
+ end;
 end;
 
 {------------------------------------------------------------------------------------}
 
 procedure TBot.doAI;
+const ColumnFireScale=1.7;
 var dx,dy:shortint;
+    fireAndForget:boolean;
 begin
   if isHidden then begin
     //try leave the cover
-    if ((simultaneous_active>activebots) and (random<frameskip/60/(enemiesalive+(sqr(1+bornToBeABoss))))) or (random<frameskip/60*1e-3) then begin
+    if (activebots=0) or ((simultaneous_active>activebots) and (random<frameskip/60/(enemiesalive+(sqr(1+bornToBeABoss))))) or (random<frameskip/60*1e-3) then begin
       dx:=0;dy:=0;
       if (x=0) or (x=maxx) then dy:=round((random-0.5)*2);
       if (y=0) or (y=maxy) then dx:=round((random-0.5)*2);
       if (dx<>0) or (dy<>0) then move(dx,dy);
+      inc(activebots)
     end;
   end else begin
-    case random(8) of
+    case random(4) of
       0: if not isMoving and (random<Mobility) then move(0,+1);
       1: if not isMoving and (random<Mobility) then move(0,-1);
       2: if not isMoving and (random<Mobility) then move(+1,0);
       3: if not isMoving and (random<Mobility) then move(-1,0);
-      4: if (bots[0].y-y>1.7) and (bots[0].hp>0) then fire(0,+1);
-      5: if (bots[0].y-y<-1.7) and (bots[0].hp>0) then fire(0,-1);
-      6: if (bots[0].x-x>1.7) and (bots[0].hp>0) then fire(+1,0);
-      7: if (bots[0].x-x<-1.7) and (bots[0].hp>0) then fire(-1,0);
     end;
+    if bots[0].hp>0 then
+      begin
+        FireAndForget:=false; //demand a fire if possible to max out possible FireRate
+        repeat
+          case random(4) of
+            0: if (bots[0].y-y>ColumnFireScale) then if fire(0,+1) then FireAndForget:=true;
+            1: if (bots[0].y-y<-ColumnFireScale) then if fire(0,-1) then FireAndForget:=true;
+            2: if (bots[0].x-x>ColumnFireScale) then if fire(+1,0) then FireAndForget:=true;
+            3: if (bots[0].x-x<-ColumnFireScale) then if fire(-1,0) then FireAndForget:=true;
+          end;
+          if (random<0.1) and (not FireAndForget) then begin
+           //to be freeze-safe
+           case random(4) of
+             0: if fire(0,+1) then FireAndForget:=true;
+             1: if fire(0,-1) then FireAndForget:=true;
+             2: if fire(+1,0) then FireAndForget:=true;
+             3: if fire(-1,0) then FireAndForget:=true;
+           end;
+           if (x=0) or (x=maxx) or (y=0) or (y=maxy) then FireAndForget:=true;
+          end;
+        Until FireAndForget;
+      end;
   end;
 end;
 
@@ -775,24 +805,25 @@ begin
   end;
   if EnemyPower>999 then music_context:=music_boss;
 
-  // do enemy AI
-  for i:=1 to high(bots) do if bots[i].hp>0 then bots[i].doAI;
-  // move missles
-  for i:=low(missles) to high(missles) do if missles[i].isAlive then missles[i].domove;
-  //if missles are not alive then die them
-  nm:=-1;
-  for i:=low(missles) to high(missles) do begin
-    if (not missles[i].isAlive) and (missles[i].countdown<=0) then freeandnil(missles[i]) else begin
-      inc(nm);
-      if nm<>i then missles[nm]:=missles[i]
+    // do enemy AI
+  if not pauseMode then
+    for i:=1 to high(bots) do if bots[i].hp>0 then bots[i].doAI;
+    // move missles
+    for i:=low(missles) to high(missles) do if missles[i].isAlive then missles[i].domove;
+    //if missles are not alive then die them
+    nm:=-1;
+    for i:=low(missles) to high(missles) do begin
+      if (not missles[i].isAlive) and (missles[i].countdown<=0) then freeandnil(missles[i]) else begin
+        inc(nm);
+        if nm<>i then missles[nm]:=missles[i]
+      end;
     end;
-  end;
-  if nm<>nmissles-1 then begin
-    nmissles:=nm+1;
-    setlength(missles,nmissles);
-  end;
-  // and move bots
-  for i:=low(bots) to high(bots) do bots[i].domove;
+    if nm<>nmissles-1 then begin
+      nmissles:=nm+1;
+      setlength(missles,nmissles);
+    end;
+    // and move bots
+    for i:=low(bots) to high(bots) do bots[i].domove;
 end;
 
 {------------------------------------------------------------------------------------}
