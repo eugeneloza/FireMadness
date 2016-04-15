@@ -38,22 +38,23 @@ const BotFolder= 'DAT'+pathdelim+'bots'+pathdelim;
       SndFolder= 'DAT'+pathdelim+'sound'+pathdelim;
       VocFolder= 'DAT'+pathdelim+'voice'+pathdelim;
 
+type float=double;
+
 type TBotType = (botplayer,bot1,bot2,bot3,botboss);
 
 type TBot=class(TObject)
   public
   hp,maxhp:integer;
-  x,y,vx,vy:single;
+  x,y,vx,vy:float;
   start_x,start_y:integer;
   lastx,lasty,nextx,nexty:integer;
   BotType:TBotType;
   BornToBeABoss:integer;
-  LastFireTime:TDateTime;
-  FireRate:double;
-  mobility:double;
-  BotSpeed:double;
+  LastFireTime,LastActionTimer:TDateTime;
+  FireRate:float;
+  mobility:float;
+  BotSpeed:float;
   isHidden,isMoving:boolean;
-
   countdown,explosiontype:integer;
   procedure move(dx,dy:shortint);
   procedure fire(dx,dy:shortint);
@@ -72,10 +73,11 @@ end;
 type TMissle=class(TObject)
   public
     MissleType:TBotType;
-    MissleSpeed:double;
-    x,y,vx,vy:single;
+    MissleSpeed:float;
+    x,y,vx,vy:float;
     IsAlive:boolean;
     countdown:integer;
+    LastActionTimer:TDateTime;
     constructor create(ThisBot:TBot;dx,dy:shortint);
     procedure doMove;
     procedure doDraw;
@@ -121,8 +123,7 @@ var Window:TCastleWindow;
   missles:array of TMissle;
   nmissles:integer;
   activebots, enemiesalive: integer;
-  lastframe:TDateTime;
-  timePassed:double;
+  frameskip:integer=1;
   //gui
   GameScreenStartX,GameScreenEndX:integer;
   FirePressed{,mousefire}:boolean;
@@ -134,7 +135,7 @@ var Window:TCastleWindow;
 {------------------------------------------------------------------------------------}
 {====================================================================================}
 {------------------------------------------------------------------------------------}
-function sgn(value:single):shortint;
+function sgn(value:float):shortint;
 begin
   if value>0 then result:=1 else
   if value<0 then result:=-1 else result:=0;
@@ -142,8 +143,9 @@ end;
 
 
 procedure KeyPress(Container: TUIContainer; const Event: TInputPressRelease);
-var dx,dy:single;
+var dx,dy:float;
 begin
+ if not firstrender then begin
 {  mouseFire:=false;}
   if bots[0].hp>0 then
   case Event.Key of
@@ -172,6 +174,7 @@ begin
           end;
       end;
   end;
+ end;
 end;
 
 procedure KeyRelease(Container: TUIContainer; const Event: TInputPressRelease);
@@ -187,7 +190,7 @@ begin
 end;
 
 {procedure KeyMotion(Container: TUIContainer; const Event: TInputMotion);
-var dx,dy:single;
+var dx,dy:float;
 begin
  if mousefire then begin
    dx:=(Event.Position[0]-GameScreenStartX)-(bots[0].x-0.5)*scale;
@@ -261,6 +264,7 @@ begin
   y:=thisbot.y+0.5+random*0.2-0.1;
   MissleType:=ThisBot.BotType;
   MissleSpeed:=5;
+  LastActionTimer:=now;
   IsAlive:=true;
 end;
 
@@ -283,7 +287,7 @@ begin
 end;
 
 procedure TMissle.doMove;
-var newx,newy:single;
+var newx,newy:float;
     missle_lives:boolean;
     i:integer;
 
@@ -293,8 +297,9 @@ var newx,newy:single;
          ((bot2=botplayer) and (bot1<>botplayer)) then result:=true else result:=false;
     end;
 begin
-  newx:=x+vx*MissleSpeed*TimePassed;
-  newy:=y+vy*MissleSpeed*TimePassed;
+  newx:=x+vx*MissleSpeed*(now-LastActionTimer)*60*60*24;
+  newy:=y+vy*MissleSpeed*(now-LastActionTimer)*60*60*24;
+  LastActionTimer:=now;
   missle_lives:=true;
   if (newx<0) or (newx>maxx+1) or (newy<0) or (newy>maxy+1) then missle_lives:=false;
   //check target hit
@@ -322,6 +327,7 @@ end;
 
 procedure TBot.resetMe;
 begin
+  LastActionTimer:=-1;
   lastFireTime:=now;
   vx:=0;vy:=0;
   if BotType=botplayer then isHidden:=false else isHidden:=true;
@@ -435,6 +441,7 @@ begin
   //finally if move is allowed
   if MoveAllowed then begin
     if isHidden then SayHi;
+//    LastActionTimer:=now;
     isHidden:=false; {for enemy bots - if they can move they leave the cover}
     vx:=tryNewVX;
     vy:=tryNewVY;
@@ -552,12 +559,14 @@ begin
 end;
 
 procedure TBot.doMove;
-var newx,newy:single;
+var newx,newy:float;
 begin
+if lastActionTimer=-1 then LastActionTimer:=now;
+  newx:=x+vx*botSpeed*(now-LastActionTimer)*60*60*24;
+  newy:=y+vy*botSpeed*(now-LastActionTimer)*60*60*24;
+  LastActionTimer:=now;
  if (vx<>0) or (vy<>0) then begin
-  isMoving:=true;
-  newx:=x+vx*botSpeed*TimePassed;
-  newy:=y+vy*botSpeed*TimePassed;
+   isMoving:=true;
   if hp>0 then begin // add some inertia if the bot explodes onmove
     if sgn(x-nextx)<>sgn(newx-nextx) then begin newx:=round(newx); vx:=0; end;
     if sgn(y-nexty)<>sgn(newy-nexty) then begin newy:=round(newy); vy:=0; end;
@@ -580,7 +589,7 @@ var dx,dy:shortint;
 begin
   if isHidden then begin
     //try leave the cover
-    if ((simultaneous_active>activebots) and (random<1/60/(enemiesalive+(sqr(1+bornToBeABoss))))) or (random<1/60*1e-3) then begin
+    if ((simultaneous_active>activebots) and (random<frameskip/60/(enemiesalive+(sqr(1+bornToBeABoss))))) or (random<frameskip/60*1e-3) then begin
       dx:=0;dy:=0;
       if (x=0) or (x=maxx) then dy:=round((random-0.5)*2);
       if (y=0) or (y=maxy) then dx:=round((random-0.5)*2);
@@ -632,7 +641,6 @@ procedure doLoadGameData;
 var i:TBotType;
     j:integer;
 begin
-  lastFrame:=now;
   //load TGLImages
   BotsImg[botplayer]:=TGLImage.create(BotFolder+'p.png');
   BotsImg[bot1]:=TGLImage.create(BotFolder+'01.png');
@@ -766,6 +774,7 @@ begin
     else music_context:=music_hard;
   end;
   if EnemyPower>999 then music_context:=music_boss;
+
   // do enemy AI
   for i:=1 to high(bots) do if bots[i].hp>0 then bots[i].doAI;
   // move missles
@@ -794,16 +803,15 @@ var RenderingBuisy:boolean=false;
 procedure doRender(Container: TUIContainer);
 begin
   if firstrender then doLoadGameData;
-  timePassed:=(now-lastFrame)*24*60*60; {sec}
-  doGame;
-
   if not RenderingBuisy then begin
+    frameskip:=1;
     RenderingBuisy:=true;
+    doGame;
+
     doDisplayImages;
 
     RenderingBuisy:=false;
-  end {else increase frameskip};
-  lastFrame:=now;
+  end else inc(frameskip);
   firstrender:=false;
 end;
 
