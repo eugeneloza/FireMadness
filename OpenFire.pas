@@ -330,7 +330,7 @@ begin
     botplayer: maxHp:=200;
     bot1:      maxHp:=20;
     bot2:      maxHp:=40;
-    bot3:      maxHp:=70;
+    bot3:      maxHp:=60;
     botBoss:   MaxHp:=250;
   end;
   case botType of
@@ -346,6 +346,14 @@ begin
     bot3:      Mobility:=0.2;
     botBoss:   Mobility:=0.075;
   end;
+  case BotType of
+    botPlayer:  FireRate:= 0.03/24/60/60;{30 shots/sec}
+    bot1:       FireRate:= 1   /24/60/60;
+    bot2:       FireRate:= 0.7 /24/60/60;
+    bot3:       FireRate:= 0.5 /24/60/60;
+    botBoss:    FireRate:= 0.02/24/60/60;
+  end;
+
   isMoving:=false;
   hp:=maxHp;
   x:=start_x;
@@ -365,12 +373,10 @@ begin
   bottype:=ThisBotType;
   BornToBeABoss:=0;
   if ThisBotType=botplayer then begin
-    FireRate:= 0.03/24/60/60;{3 shots/sec}
     start_x:=maxx div 2; if odd((start_x)) then start_x-=1;
     start_y:=maxy div 2; if odd((start_y)) then start_y-=1;
   end
   else begin
-    FireRate:= 0.9/24/60/60;
     start_x:=-1;
     start_y:=-1;
     repeat
@@ -470,8 +476,8 @@ var FireAllowed:boolean;
 begin
   if (now-lastFireTime)>=FireRate then begin
     FireAllowed:=true;
-    if (dx<>0) and (vy<>0) then FireAllowed:=false;
-    if (dy<>0) and (vx<>0) then FireAllowed:=false;
+    if (dx<>0) and ((vy<>0) and ((abs(round(y)-y)>0.3) or odd(round(y))) ) then FireAllowed:=false;
+    if (dy<>0) and ((vx<>0) and ((abs(round(x)-x)>0.3) or odd(round(x))) ) then FireAllowed:=false;
     {bot specific tweaks}
     if (x<2) and (dx<>1) then FireAllowed:=false;
     if (y<2) and (dy<>1) then FireAllowed:=false;
@@ -498,17 +504,14 @@ procedure TBot.EndMyLife;
 begin
   if bottype=bot1 then begin
     bottype:=bot2;
-    fireRate:=fireRate/3;
     ResetMe;
   end else
   if bottype=bot2 then begin
     bottype:=bot3;
-    fireRate:=fireRate/3;
     ResetMe;
   end else if (bottype=bot3) and (BornToBeABoss>0) then begin
     //todo: select boss based on BornToBeABoss
     bottype:=botboss;
-    fireRate:=fireRate/10;
     ResetMe;
   end;
   //if no reanimation - this is the end;
@@ -577,7 +580,7 @@ var dx,dy:shortint;
 begin
   if isHidden then begin
     //try leave the cover
-    if ((simultaneous_active>activebots) and (random<1/60/(enemiesalive+1))) or (random<1/60*1e-3) then begin
+    if ((simultaneous_active>activebots) and (random<1/60/(enemiesalive+(sqr(1+bornToBeABoss))))) or (random<1/60*1e-3) then begin
       dx:=0;dy:=0;
       if (x=0) or (x=maxx) then dy:=round((random-0.5)*2);
       if (y=0) or (y=maxy) then dx:=round((random-0.5)*2);
@@ -589,10 +592,10 @@ begin
       1: if not isMoving and (random<Mobility) then move(0,-1);
       2: if not isMoving and (random<Mobility) then move(+1,0);
       3: if not isMoving and (random<Mobility) then move(-1,0);
-      4: if bots[0].y-y>0 then fire(0,+1);
-      5: if bots[0].y-y<0 then fire(0,-1);
-      6: if bots[0].x-x>0 then fire(+1,0);
-      7: if bots[0].x-x<0 then fire(-1,0);
+      4: if (bots[0].y-y>1.7) and (bots[0].hp>0) then fire(0,+1);
+      5: if (bots[0].y-y<-1.7) and (bots[0].hp>0) then fire(0,-1);
+      6: if (bots[0].x-x>1.7) and (bots[0].hp>0) then fire(+1,0);
+      7: if (bots[0].x-x<-1.7) and (bots[0].hp>0) then fire(-1,0);
     end;
   end;
 end;
@@ -809,7 +812,7 @@ begin
   window.DoRender;
   if (MyMusicTimer=-1) or ((Now-MyMusicTimer)*60*60*24>Music_duration+1) then doLoadMusic;
   if MusicReady then begin
-    SoundEngine.PlaySound(music, false, false, 1, 1, 0, 1, ZeroVector3Single);
+    SoundEngine.PlaySound(music, false, false, 10, 1, 0, 1, ZeroVector3Single);
     MusicReady:=false;
   end;
 

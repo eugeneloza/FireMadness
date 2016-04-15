@@ -3,15 +3,15 @@
   <ProjectSession>
     <PathDelim Value="\"/>
     <Version Value="9"/>
-    <BuildModes Active="Default"/>
+    <BuildModes Active="Release"/>
     <Units Count="9">
       <Unit0>
         <Filename Value="OpenFire.pas"/>
         <IsPartOfProject Value="True"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="328"/>
-        <CursorPos X="26" Y="330"/>
-        <UsageCount Value="56"/>
+        <TopLine Value="343"/>
+        <CursorPos X="31" Y="354"/>
+        <UsageCount Value="78"/>
         <Loaded Value="True"/>
       </Unit0>
       <Unit1>
@@ -20,7 +20,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="1604"/>
         <CursorPos X="14" Y="1611"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="7"/>
       </Unit1>
       <Unit2>
         <Filename Value="V:\CGE\castle-engine\src\ui\castleuicontrols.pas"/>
@@ -28,7 +28,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="2170"/>
         <CursorPos X="24" Y="2203"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="8"/>
       </Unit2>
       <Unit3>
         <Filename Value="V:\CGE\castle-engine\src\ui\castlekeysmouse.pas"/>
@@ -36,35 +36,35 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="38"/>
         <CursorPos X="11" Y="49"/>
-        <UsageCount Value="11"/>
+        <UsageCount Value="9"/>
       </Unit3>
       <Unit4>
         <Filename Value="V:\CGE\castle-engine\src\images\opengl\castleglimages_tglimage.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="194"/>
         <CursorPos X="15" Y="203"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="7"/>
       </Unit4>
       <Unit5>
         <Filename Value="E:\PROGR\lazarus\fpc\3.0.0\source\rtl\inc\systemh.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="784"/>
         <CursorPos X="11" Y="793"/>
-        <UsageCount Value="8"/>
+        <UsageCount Value="6"/>
       </Unit5>
       <Unit6>
         <Filename Value="E:\PROGR\lazarus\fpc\3.0.0\source\rtl\inc\system.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="633"/>
         <CursorPos X="3" Y="635"/>
-        <UsageCount Value="8"/>
+        <UsageCount Value="6"/>
       </Unit6>
       <Unit7>
         <Filename Value="E:\PROGR\lazarus\fpc\3.0.0\source\rtl\inc\objpash.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="193"/>
         <CursorPos X="21" Y="202"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="7"/>
       </Unit7>
       <Unit8>
         <Filename Value="V:\CGE\castle-engine\src\audio\castlesoundfile.pas"/>
@@ -72,129 +72,108 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="263"/>
         <CursorPos Y="272"/>
-        <UsageCount Value="11"/>
+        <UsageCount Value="9"/>
       </Unit8>
     </Units>
-    <JumpHistory Count="30" HistoryIndex="29">
+    <JumpHistory Count="25" HistoryIndex="24">
       <Position1>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="455" Column="17" TopLine="439"/>
+        <Caret Line="839" TopLine="817"/>
       </Position1>
       <Position2>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="158" Column="29" TopLine="150"/>
+        <Caret Line="123" Column="27" TopLine="106"/>
       </Position2>
       <Position3>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="161" TopLine="145"/>
+        <Caret Line="580" Column="72" TopLine="570"/>
       </Position3>
       <Position4>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="179" Column="32" TopLine="171"/>
+        <Caret Line="744" Column="29" TopLine="740"/>
       </Position4>
       <Position5>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="156" Column="39" TopLine="151"/>
+        <Caret Line="748" Column="21" TopLine="740"/>
       </Position5>
       <Position6>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="613" Column="5" TopLine="605"/>
+        <Caret Line="123" Column="27" TopLine="112"/>
       </Position6>
       <Position7>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="807" TopLine="805"/>
+        <Caret Line="803" Column="32" TopLine="787"/>
       </Position7>
       <Position8>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="157" Column="9" TopLine="142"/>
+        <Caret Line="331" Column="31" TopLine="328"/>
       </Position8>
       <Position9>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="159" Column="51" TopLine="154"/>
       </Position9>
       <Position10>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="174" Column="46" TopLine="170"/>
+        <Caret Line="99" Column="28" TopLine="90"/>
       </Position10>
       <Position11>
         <Filename Value="OpenFire.pas"/>
+        <Caret Line="122" Column="27" TopLine="112"/>
       </Position11>
       <Position12>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="128" Column="14" TopLine="112"/>
+        <Caret Line="249" Column="12" TopLine="244"/>
       </Position12>
       <Position13>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="180" Column="39" TopLine="164"/>
+        <Caret Line="811" TopLine="723"/>
       </Position13>
       <Position14>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="182" Column="75" TopLine="166"/>
+        <Caret Line="177" Column="42" TopLine="168"/>
       </Position14>
       <Position15>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="185" Column="16" TopLine="169"/>
+        <Caret Line="189" Column="42" TopLine="173"/>
       </Position15>
       <Position16>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="453" Column="13" TopLine="437"/>
+        <Caret Line="473" Column="71" TopLine="464"/>
       </Position16>
       <Position17>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="458" Column="17" TopLine="442"/>
+        <Caret Line="474" Column="70" TopLine="464"/>
       </Position17>
       <Position18>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="566" Column="57" TopLine="560"/>
+        <Caret Line="594" TopLine="581"/>
       </Position18>
       <Position19>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="129" Column="11" TopLine="115"/>
+        <Caret Line="827" TopLine="798"/>
       </Position19>
       <Position20>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="157" Column="20" TopLine="142"/>
+        <Caret Line="582" Column="48" TopLine="580"/>
       </Position20>
       <Position21>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="181" Column="54" TopLine="172"/>
       </Position21>
       <Position22>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="54" Column="11" TopLine="43"/>
+        <Caret Line="68" Column="20" TopLine="54"/>
       </Position22>
       <Position23>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="415" Column="21" TopLine="403"/>
+        <Caret Line="325" Column="32" TopLine="319"/>
       </Position23>
       <Position24>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="839" TopLine="817"/>
+        <Caret Line="477" Column="34" TopLine="461"/>
       </Position24>
       <Position25>
         <Filename Value="OpenFire.pas"/>
-        <Caret Line="123" Column="27" TopLine="106"/>
+        <Caret Line="573" Column="57" TopLine="571"/>
       </Position25>
-      <Position26>
-        <Filename Value="OpenFire.pas"/>
-        <Caret Line="580" Column="72" TopLine="570"/>
-      </Position26>
-      <Position27>
-        <Filename Value="OpenFire.pas"/>
-        <Caret Line="744" Column="29" TopLine="740"/>
-      </Position27>
-      <Position28>
-        <Filename Value="OpenFire.pas"/>
-        <Caret Line="748" Column="21" TopLine="740"/>
-      </Position28>
-      <Position29>
-        <Filename Value="OpenFire.pas"/>
-        <Caret Line="123" Column="27" TopLine="112"/>
-      </Position29>
-      <Position30>
-        <Filename Value="OpenFire.pas"/>
-        <Caret Line="803" Column="32" TopLine="787"/>
-      </Position30>
     </JumpHistory>
   </ProjectSession>
 </CONFIG>
