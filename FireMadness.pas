@@ -346,6 +346,7 @@ procedure doShowPrologue(PrologueRecord:integer);
 var txt_index:integer;
     Y,X:integer;
 begin
+  HideAllButtons;
   if music_context<>music_TitleScreen then begin
     music_context:=music_TitleScreen;
     if not isMusicCrossfade then doLoadNewMusic;
@@ -429,6 +430,7 @@ end;
 procedure doShowBestiary(BestiaryRecord:integer);
 var new_y:integer;
 begin
+  HideAllButtons;
   if music_context<>music_TitleScreen then begin
     music_context:=music_TitleScreen;
     if not isMusicCrossfade then doLoadNewMusic;
