@@ -7,7 +7,7 @@ interface
 uses SysUtils,
      CastleGLImages,
      CastleOpenAL, CastleSoundEngine, CastleTimeUtils, CastleVectors,
-     firemadnesscontrols, general_var,sound_music,map_manager;
+     Game_controls, general_var,sound_music, map_manager;
 
 const missle_explosion=10;
 
@@ -81,6 +81,7 @@ type TFIWI=class(THostileBot)
     FIWI_Spawn:TBotType;
     FIWI_SpawnTimer:TDateTime;
     SpawnNumber:integer;
+    FIWI_First_Action:boolean;
     procedure resetMe; virtual;
 end;
 
@@ -112,6 +113,7 @@ var
     nmissles:integer;
     activebots, enemiesalive: integer;
     healerPresent,ShielderPresent: boolean;
+    FIWI_health,FIWI_maxHealth:integer;
 
 procedure doLoadImages;
 
@@ -238,8 +240,8 @@ begin
   for i:=low(bots) to high(bots) do if bots[i].hp>0 then
     if (newx>bots[i].x) and (newy>bots[i].y) and (newx<bots[i].x+1) and (newy<bots[i].y+1) then begin
       if hostile(bots[i].bottype,missletype) then begin
-        if missletype<>HeavyBot then bots[i].hitme(1) else bots[i].hitme(30);
         if missletype=botDisabler then if bots[i] is TPlayerBot {this is redundant} then (bots[i] as TPlayerBot).isDisabled:=round(300*difficultyLevel.EnemyRangeMultiplier);
+        if missletype<>HeavyBot then bots[i].hitme(1) else bots[i].hitme(30);
         missle_lives:=false;
       end;
     end;
@@ -290,6 +292,7 @@ begin
   FIWI_timer:=now;
   FIWI_spawn:={botfighter}BotTeleporter;
   FIWI_SpawnTimer:=now;
+  FIWI_First_Action:=true;
   isHidden:=FALSE;
   SpawnNumber:=0;
   FIWI_action_change:=5.5/DifficultyLevel.EnemyFirePowerMultiplier;
@@ -311,6 +314,9 @@ var foe:TPlayerBot;
     ReadyToSpawn,randomSpawn:boolean;
     i,ValidHealerTargets,activeFriends:integer;
 begin
+  FIWI_health:=hp;
+  FIWI_maxHealth:=maxHp;
+
   foe:=getPlayerTarget;
   if foe.hp<=0 then exit;
   if FIWI_LastAction=f_spawn then begin
@@ -359,6 +365,11 @@ begin
 
     if FIWI_lastAction=f_teleport then begin
       isTeleporting:=100;
+    end;
+
+    if FIWI_First_Action then begin
+      FIWI_lastAction:=f_fire;
+      FIWI_First_Action:=false;
     end;
 
     if FIWI_LastAction=f_spawn then begin
@@ -428,7 +439,7 @@ begin
     botteleporter:         MaxHp:=70;
     heavybot:              MaxHp:=80;
     botautohealer:         MaxHp:=50;
-    botDisabler:           MaxHp:=90;
+    botDisabler:           MaxHp:=125;
   end;
   maxHP:=round(maxHP*DifficultyLevel.EnemyHealthMultiplier);
   case botType of
@@ -464,9 +475,9 @@ begin
     botDisabler:           Mobility:=0.01;
   end;
   case BotType of
-    bot1:                  FireRate:= 1   /24/60/60;
-    bot2:                  FireRate:= 0.7 /24/60/60;
-    bot3:                  FireRate:= 0.5 /24/60/60;
+    bot1:                  FireRate:= 1   /24/60/60 /2;
+    bot2:                  FireRate:= 0.7 /24/60/60 /2;
+    bot3:                  FireRate:= 0.5 /24/60/60 /2;
     botBossCrossFire:      FireRate:= 0.02/24/60/60;
     botBossCarrier:        FireRate:= 1   /24/60/60;
     botBossMiner:          FireRate:= 1   /24/60/60;
@@ -474,7 +485,7 @@ begin
     botfighter:            FireRate:= 0.3 /24/60/60;
     botshielder:           FireRate:= 2   /24/60/60;
     bothealer:             FireRate:= 2   /24/60/60;
-    botteleporter:         FireRate:= 0.5 /24/60/60;
+    botteleporter:         FireRate:= 0.5 /24/60/60 /2;
     heavybot:              FireRate:= 1.5 /24/60/60;
     botautohealer:         FireRate:= 0.6 /24/60/60;
     botDisabler:           FireRate:= 1.7 /24/60/60;
@@ -509,7 +520,7 @@ end;
 
 procedure TPlayerBot.ResetMe;
 begin
-  maxHp:=DifficultyLevel.PlayerHealth;
+  maxHp:=round(map.PlayerHealth*difficultyLevel.PlayerHealthMultiplier);
   BotSpeed:= 2;
   FireRate:= 0.03/24/60/60;{30 shots/sec}
 
@@ -654,9 +665,17 @@ procedure THostileBot.SayHi;
 var PlayVoice:integer;
 begin
   if (Now>MyVoiceTimer) then begin
-    Repeat
+    case botType of
+      botBossCrossFire,botBossCarrier,botBossMiner: PlayVoice:=2;
+      heavybot:              PlayVoice:=1;
+      botTeleporter:         PlayVoice:=3;
+      botDisabler:           PlayVoice:=5;
+      bothealer,botShielder: PlayVoice:=4;
+      else PlayVoice:=0;
+    end;
+{    Repeat
       PlayVoice:=random(nVoices);
-    until (PlayVoice<>lastVoice) or (nVoices=1);
+    until (PlayVoice<>lastVoice) or (nVoices=1);}
     SoundEngine.PlaySound(sndVoice[PlayVoice], false, false, 1, 0.7, 0, 1, ZeroVector3Single);
     MyVoiceTimer:=now+VoiceDuration[PlayVoice]/60/60/24;
     LastVoice:=PlayVoice;
@@ -791,11 +810,16 @@ end;
 procedure TBot.hitme(damage:integer);
 begin
   if self is TPlayerBot then begin
-    if (self as TPlayerBot).isDisabled=0 then dec(hp,damage) else dec(hp,damage+1)
+    if (self as TPlayerBot).isDisabled=0 then dec(hp,damage) else begin
+      SoundEngine.PlaySound(sndDisabled, false, false, 2, 1, 0, 1, ZeroVector3Single);
+      dec(hp,damage+1)
+    end;
   end else if self is THostileBot then if not (self as THostileBot).isShielded then dec(hp,damage);
 
   if hp<=0 then begin
     hp:=0;
+    if self is TPlayerBot then
+      SoundEngine.PlaySound(sndPlayerDies, false, false, 2, 1, 0, 1, ZeroVector3Single);
     SoundEngine.PlaySound(sndExplosion, false, false, 2, 1, 0, 1, ZeroVector3Single);
     if (damage>5) and ((bottype=botplayer1) or (bottype=botplayer2)) then SoundEngine.PlaySound(sndPlayerHitHard, false, false, 3, 1, 0, 1, ZeroVector3Single);
     countdown:=100;
@@ -936,10 +960,11 @@ begin
  if bottype<>botmine then begin
   if isHidden then begin
     //try leave the cover
-    If activebots=0 then ExitHideoutProbability:=0.5 else
+    If activebots=0 then ExitHideoutProbability:=1/(enemiesalive+1) else
     If (DifficultyLevel.simultaneous_active>activebots) then ExitHideoutProbability:=frameskip/60/(enemiesalive+1) else
       ExitHideoutProbability:=frameskip/60/(enemiesalive+1)*1e-2;
-    if (BornToBeABoss<>boss_none) or (bottype=botshielder) or (bottype=bothealer) or (bottype=botDisabler) then ExitHideoutProbability/=1.1;
+    if (BornToBeABoss<>boss_none) or (bottype=botshielder) or (bottype=bothealer) then ExitHideoutProbability/=1.1;
+    if (bottype=botDisabler) then exitHideoutProbability/=1.3;
     if (bottype=botShielder) and (ShielderPresent) then ExitHideoutProbability/=2;
     if (bottype=botHealer) and (HealerPresent) then ExitHideoutProbability/=2;
     if random<ExitHideoutProbability then begin

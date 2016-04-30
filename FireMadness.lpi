@@ -97,14 +97,15 @@
         <PackageName Value="castle_base"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="6">
+    <Units Count="8">
       <Unit0>
         <Filename Value="FireMadness.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit0>
       <Unit1>
-        <Filename Value="firemadnesscontrols.pas"/>
+        <Filename Value="game_controls.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="Game_controls"/>
       </Unit1>
       <Unit2>
         <Filename Value="general_var.pas"/>
@@ -123,6 +124,16 @@
         <Filename Value="map_manager.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit5>
+      <Unit6>
+        <Filename Value="translation.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="Translation"/>
+      </Unit6>
+      <Unit7>
+        <Filename Value="gl_button.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="GL_button"/>
+      </Unit7>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
