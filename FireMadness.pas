@@ -66,7 +66,7 @@ var Window:TCastleWindow;
   buttonIMg:TGLImage;
   MouseMenuPress:boolean=false;
 
-  UserPortraits:Array[0..4] of TGLImage;
+  UserPortraits:Array[0..3] of TGLImage;
   Player1Portrait:integer=0;
   Player2Portrait:integer=2;
 
@@ -824,7 +824,7 @@ begin
  PauseMode:=false;
  if event.key=K_Pause then pauseMode:=not PauseMode;
  if event.key=K_f10 then begin Current_game_context:=gameplay_title; CurrentTitleDisplay:=currentTitle_title; window.OnPress:=@MenuKeyPress; window.OnRelease:=@MenuKeyRelease end;
- if event.key=K_f9 then for i:= low(bots) to high(bots) do if bots[i] is THostileBot then bots[i].hitme(bots[i].maxhp);
+// if event.key=K_f9 then for i:= low(bots) to high(bots) do if bots[i] is THostileBot then bots[i].hitme(bots[i].maxhp);
  if event.key=k_f5 then doLoadNewMusic;
  for i:=0 to nplayers-1 do begin
    PlayerBot:=bots[i] as TPlayerBot;
@@ -1080,7 +1080,6 @@ begin
   UserPortraits[1]:=TGLImage.create(PortraitFolder+'f_CC_BY_by_noblemaster.png',true);
   UserPortraits[2]:=TGLImage.create(PortraitFolder+'cute_cat_03_CC0_by_frugalhappyfamilies.com.png',true);
   UserPortraits[3]:=TGLImage.create(PortraitFolder+'cute_cat_05_CC0_by_frugalhappyfamilies.com.png',true);
-  UserPortraits[4]:=TGLImage.create(PortraitFolder+'none.png',true);
 
   LoadControlsImages;
   MakeTitleScreen;
