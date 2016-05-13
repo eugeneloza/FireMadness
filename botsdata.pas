@@ -238,7 +238,8 @@ begin
   if (newx<0) or (newx>maxx+1) or (newy<0) or (newy>maxy+1) then missle_lives:=false;
   //check target hit
   for i:=low(bots) to high(bots) do if bots[i].hp>0 then
-    if (newx>bots[i].x) and (newy>bots[i].y) and (newx<bots[i].x+1) and (newy<bots[i].y+1) then begin
+    if (newx>bots[i].x) and (newy>bots[i].y) and (newx<bots[i].x+1) and (newy<bots[i].y+1) and
+      ((random<0.1) or (sqr(newx-bots[i].x-0.5)+sqr(newy-bots[i].y-0.5)<0.2)) then begin
       if hostile(bots[i].bottype,missletype) then begin
         if missletype=botDisabler then if bots[i] is TPlayerBot {this is redundant} then (bots[i] as TPlayerBot).isDisabled:=round(300*difficultyLevel.EnemyRangeMultiplier);
         if missletype<>HeavyBot then bots[i].hitme(1) else bots[i].hitme(30);

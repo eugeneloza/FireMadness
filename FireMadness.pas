@@ -1440,7 +1440,7 @@ window.OnMotion:=nil;
 window.Width:=800;
 window.height:=600;
 
-SetDifficultyLevelHard;
+SetDifficultyLevelNormal;
 
 PlayerControls[2]:=TPlayerControls.create;
 PlayerControls[3]:=TPlayerControls.create;
