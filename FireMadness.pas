@@ -21,7 +21,7 @@ uses  {$IFDEF UNIX}cthreads,{$ENDIF}Classes, SysUtils,
   castle_window, CastleWindow, castle_base,
   CastleGLImages,
   castleVectors, castleImages,
-  CastleKeysMouse,
+  CastleKeysMouse, CastleJoysticks,
   CastleFreeType, CastleFonts, CastleUnicode, CastleStringUtils,
   Game_controls, general_var, Sound_Music, botsdata,
   map_manager, Translation, GL_button;
@@ -32,6 +32,11 @@ const MinWindowWidth=320;
 
 type game_context_type=(gameplay_title,gameplay_play);
      Current_title_type=(currentTitle_title,currentTitle_prologue,currenttitle_bestiary, currentTitle_credits, currentTitle_mapselect);
+
+TEventsHandler = class
+  procedure JoyMove(const Joy: PJoy; const Axis: Byte; const Value: Single);
+  procedure JoyButtonDown(const Joy: PJoy; const Button: Byte);
+end;
 
 {---------------------------}
 
@@ -120,6 +125,8 @@ begin
   //stop fire and movement if there were any before
   for i:=low(PlayerControls) to high(PlayerControls) do PlayerControls[i].StopControls;
 end;
+
+{========================= menu controls ====================================}
 
 procedure MenuKeyRelease(Container: TUIContainer; const Event: TInputPressRelease);
 var i:integer;
@@ -893,7 +900,55 @@ begin
  end;
 end;            }
 
+{-------- Gamepad support by Tomasz Wojtyś -----------}
 
+procedure TEventsHandler.JoyMove(const Joy: PJoy; const Axis: Byte; const Value: Single);
+var
+  K: TKey;
+  _event: TInputPressRelease;
+begin
+  // map axis for xbox360 gamepad for first player
+  if Abs(Value) > 0.15 then //dead zone cancellation
+  begin
+    case Axis of
+      // movement
+      JOY_AXIS_V: begin
+        if Value < 0 then
+          K := PlayerControls[0].MoveKeys.up;
+        if Value > 0 then
+          K := PlayerControls[0].MoveKeys.down;
+      end;
+      JOY_AXIS_U: begin
+        if Value < 0 then
+          K := PlayerControls[0].MoveKeys.left;
+        if Value > 0 then
+          K := PlayerControls[0].MoveKeys.right;
+      end;
+      // fire
+      JOY_POVY: begin
+        if Value < 0 then
+          K := PlayerControls[0].FireKeys.up;
+        if Value > 0 then
+          K := PlayerControls[0].FireKeys.down;
+      end;
+      JOY_POVX: begin
+        if Value < 0 then
+          K := PlayerControls[0].FireKeys.left;
+        if Value > 0 then
+          K := PlayerControls[0].FireKeys.right;
+      end;
+    end;
+    _event.Key := K;
+    GameKeyPress(nil, _event);
+  end;
+end;
+
+procedure TEventsHandler.JoyButtonDown(const Joy: PJoy; const Button: Byte);
+begin
+  // map buttons
+end;
+
+{--------------- /gamepad --------------}
 
 {------------------------------------------------------------------------------------}
 {====================================================================================}
@@ -1434,6 +1489,9 @@ window.OnResize:=@doWindowResize;
 window.OnPress:=@MenuKeyPress;
 window.onRelease:=@MenuKeyRelease;
 window.OnMotion:=nil;
+
+EnableJoysticks;
+Joysticks.OnAxisMove := @TEventsHandler(nil).JoyMove;
 
 //map:=map_bedRoom;
 
