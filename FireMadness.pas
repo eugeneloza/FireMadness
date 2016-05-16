@@ -331,6 +331,9 @@ begin
   Y-=NormalFontSize*NormalFont.PrintBrokenString(x+64+10,Y,Vector4Single(0.9,0.9,0.9,1),s,(window.width-X)-10,true,1);
 
   Y-=NormalFontSize;
+  NormalFont.Print(x,y,Vector4Single(0.9,0.9,0.9,1),txt[93]);
+
+  Y-=NormalFontSize*3;
   NormalFont.Print(x,y,Vector4Single(0.9,0.9,0.9,1),txt[54]);
   Y-=NormalFontSize*2;
   NormalFont.Print(x,y,Vector4Single(0.9,0.9,0.9,1),txt[55]);
@@ -868,6 +871,21 @@ begin
     end;
    end;
  end;{for i 0 to nplayers}
+ if Event.EventType = itMouseButton then begin
+{  if (Event.Position[0]>GameScreenStartX) and (Event.Position[0]<GameScreenEndX) then begin
+    //do game
+{        mousefire:=true;}
+    dx:=(Event.Position[0]-GameScreenStartX)-(PlayerBot.x+0.5)*scale;
+    dy:=(Event.Position[1])-(PlayerBot.y+0.5)*scale;
+    if abs(dx)>abs(dy) then begin
+      if (dx<0) then PlayerBot.Move(-1,0) else PlayerBot.Move(+1,0);
+    end else begin
+      if (dy<0) then PlayerBot.Move(0,-1) else PlayerBot.Move(0,+1);
+    end;
+  end else begin
+    //do side menu
+  end;}
+ end;
 end;
 
 procedure GameKeyRelease(Container: TUIContainer; const Event: TInputPressRelease);

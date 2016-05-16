@@ -1,3 +1,5 @@
+#000 absent :)
+
 001: PROLOGUE
 002: It's 11th April 2116. My antivirus license had expired. Viruses took over my home droids that ran on SoftMadness (R) Doors operation system and they won't let me to my refrigerator... I was absolutely sure I could survive a month on food crumbs in my keyboard in case of zombie apocalypse. In reality they weren't even enough for two weeks... The only option to death from starvation is to fight my way through. Luckily I still have an old and reliable opensource-based droid I can operate. It's kill 'em all or die trying!
 003: BEDROOM
@@ -115,3 +117,9 @@
 090: *reserved*
 091: *reserved*
 092: (Return to title)
+
+# Additional info
+
+093: Gamepad support by Tomasz Wojtyś
+094: Press F10 to return to title screen in-game
+095: PAUSE key pauses game

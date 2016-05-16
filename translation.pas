@@ -27,7 +27,7 @@ begin
   if MyCharSet=nil then begin
       MyCharSet:=TUnicodeCharList.Create;
       MyCharSet.add(SimpleAsciiCharacters);
-      MyCharSet.add('ЁЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮёйцукенгшщзхъфывапролджэячсмитьбюІЇЄіїє');
+      MyCharSet.add('śЁЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮёйцукенгшщзхъфывапролджэячсмитьбюІЇЄіїє');
     end;//else FreeAndNil(CharSet);
 end;
 
@@ -39,7 +39,7 @@ begin
   InitCharSet;
   currentLanguage:=language;
 
-  setlength(TXT,92+1);
+  setlength(TXT,95+1);
   case language of
     language_english:filename:='English.txt';
     language_russian:filename:='Russian.txt';
