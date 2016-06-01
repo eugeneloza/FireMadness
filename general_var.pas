@@ -6,18 +6,18 @@ interface
 
 uses SysUtils;
 
-const BotFolder= 'DAT'+pathdelim+'bots'+pathdelim;
-      ExpFolder= 'DAT'+pathdelim+'explosions'+pathdelim;
-      GuiFolder= 'DAT'+pathdelim+'gui'+pathdelim;
+const BotFolder= 'bots'+pathdelim;
+      ExpFolder= 'explosions'+pathdelim;
+      GuiFolder= 'gui'+pathdelim;
       KeyFolder= GuiFolder+'keys'+pathdelim;
-      MapFolder= 'DAT'+pathdelim+'map'+pathdelim;
-      MusFolder= 'DAT'+pathdelim+'music'+pathdelim;
-      SndFolder= 'DAT'+pathdelim+'sound'+pathdelim;
-      VocFolder= 'DAT'+pathdelim+'voice'+pathdelim;
-      TitlescreenFolder= 'DAT'+pathdelim+'titlescreen'+pathdelim;
-      TranslationFolder= 'DAT'+pathdelim+'translation'+pathdelim;
-      PortraitFolder= 'DAT'+pathdelim+'portrait'+pathdelim;
-      fntFolder= 'DAT'+pathdelim+'font'+pathdelim;
+      MapFolder= 'map'+pathdelim;
+      MusFolder= 'music'+pathdelim;
+      SndFolder= 'sound'+pathdelim;
+      VocFolder= 'voice'+pathdelim;
+      TitlescreenFolder= 'titlescreen'+pathdelim;
+      TranslationFolder= 'translation'+pathdelim;
+      PortraitFolder= 'portrait'+pathdelim;
+      fntFolder= 'font'+pathdelim;
       NormalFontFile=fntFolder+'LinBiolinum_R_G';
       BoldFontFile=fntFolder+'LinBiolinum_RB_G';
 

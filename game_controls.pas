@@ -5,7 +5,7 @@ unit Game_controls;
 interface
 
 uses
-  Classes, SysUtils,
+  Classes, SysUtils, castleFilesUtils,
   CastleGLImages,
   CastleKeysMouse,
   general_var;
@@ -62,11 +62,11 @@ end;
 
 procedure LoadControlsImages;
 begin
-  ControlsPic[controls_WASD]:=TGLImage.Create(keyFolder+'WASD.png',true);
-  ControlsPic[controls_TFGH]:=TGLImage.Create(keyFolder+'TFGH.png',true);
-  ControlsPic[controls_IJKL]:=TGLImage.Create(keyFolder+'IJKL.png',true);
-  ControlsPic[controls_cursor]:=TGLImage.Create(keyFolder+'cursor.png',true);
-  ControlsPic[controls_numbers]:=TGLImage.Create(keyFolder+'numpad.png',true);
+  ControlsPic[controls_WASD]:=TGLImage.Create(ApplicationData(keyFolder+'WASD.png'),true);
+  ControlsPic[controls_TFGH]:=TGLImage.Create(ApplicationData(keyFolder+'TFGH.png'),true);
+  ControlsPic[controls_IJKL]:=TGLImage.Create(ApplicationData(keyFolder+'IJKL.png'),true);
+  ControlsPic[controls_cursor]:=TGLImage.Create(ApplicationData(keyFolder+'cursor.png'),true);
+  ControlsPic[controls_numbers]:=TGLImage.Create(ApplicationData(keyFolder+'numpad.png'),true);
 end;
 
 constructor TPlayerControls.create;

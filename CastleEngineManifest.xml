@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="FireMadness"
+  caption="Fire Madness"
+  qualified_name="localhost.home.eugene.firemadness"
+  standalone_source="FireMadness_desktop.lpr"
+  android_source="FireMadness_Android.lpr"
+  android_project="android_application/"
+  screen_orientation="landscape"
+  author="Eugene Loza">
+  <icons>
+    <icon path="FireMadnessIcon.ico" />
+    <icon path="FireMadnessIcon.png" />
+  </icons>
+  <dependencies>
+    <dependency name="Freetype" /> <!-- freetype library, to read font files like .ttf -->
+    <dependency name="Zlib" /> <!-- zlib, to read .gz files -->
+    <dependency name="Png" /> <!-- libpng, to read .png files -->
+    <dependency name="Sound" /> <!-- sound library (OpenAL) -->
+    <dependency name="OggVorbis" /> <!-- vorbisfile and related libraries
+                                         to read OggVorbis compressed audio -->
+  </dependencies>
+  <android project_type="integrated" /> <!-- necessary for sound to work -->
+</project>

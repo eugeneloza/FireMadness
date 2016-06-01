@@ -4,9 +4,9 @@ unit botsdata;
 
 interface
 
-uses SysUtils,
+uses SysUtils, castleFilesUtils,
      CastleGLImages,
-     CastleOpenAL, CastleSoundEngine, CastleTimeUtils, CastleVectors,
+     CastleOpenAL, CastleSoundEngine, {CastleTimeUtils, }CastleVectors,
      Game_controls, general_var,sound_music, map_manager;
 
 const missle_explosion=10;
@@ -125,54 +125,54 @@ procedure doLoadImages;
 var i:TBotType;
     j:integer;
 begin
-  BotsImg[botplayer1]:=TGLImage.create(BotFolder+'Player1.png',true);
-  BotsImg[botplayer2]:=TGLImage.create(BotFolder+'Player2.png',true);
-  BotsImg[bot1]:=TGLImage.create(BotFolder+'01.png',true);
-  BotsImg[bot2]:=TGLImage.create(BotFolder+'02.png',true);
-  BotsImg[bot3]:=TGLImage.create(BotFolder+'03.png',true);
-  BotsImg[botBossCrossFire]:=TGLImage.create(BotFolder+'BossCrossFire.png',true);
-  BotsImg[botBossCarrier]:=TGLImage.create(BotFolder+'BossCarrier.png',true);
-  BotsImg[botBossMiner]:=TGLImage.create(BotFolder+'BotBossMiner.png',true);
-  BotsImg[botmine]:=TGLImage.create(BotFolder+'BotMine.png',true);
-  BotsImg[botfighter]:=TGLImage.create(BotFolder+'BotFighter.png',true);
-  BotsImg[botshielder]:=TGLImage.create(BotFolder+'BotShielder.png',true);
-  BotsImg[bothealer]:=TGLImage.create(BotFolder+'Healer.png',true);
-  BotsImg[botteleporter]:=TGLImage.create(BotFolder+'Teleporter.png',true);
-  BotsImg[heavybot]:=TGLImage.create(BotFolder+'HeavyBot.png',true);
-  BotsImg[botautohealer]:=TGLImage.create(BotFolder+'AutoHealer.png',true);
-  BotsImg[botDisabler]:=TGLImage.create(BotFolder+'BotDisabler.png',true);
-  BotsImg[botFIWI]:=TGLImage.create(BotFolder+'FI-WI.png',true);
+  BotsImg[botplayer1]:=TGLImage.create(ApplicationData(BotFolder+'Player1.png'),true);
+  BotsImg[botplayer2]:=TGLImage.create(ApplicationData(BotFolder+'Player2.png'),true);
+  BotsImg[bot1]:=TGLImage.create(ApplicationData(BotFolder+'01.png'),true);
+  BotsImg[bot2]:=TGLImage.create(ApplicationData(BotFolder+'02.png'),true);
+  BotsImg[bot3]:=TGLImage.create(ApplicationData(BotFolder+'03.png'),true);
+  BotsImg[botBossCrossFire]:=TGLImage.create(ApplicationData(BotFolder+'BossCrossFire.png'),true);
+  BotsImg[botBossCarrier]:=TGLImage.create(ApplicationData(BotFolder+'BossCarrier.png'),true);
+  BotsImg[botBossMiner]:=TGLImage.create(ApplicationData(BotFolder+'BotBossMiner.png'),true);
+  BotsImg[botmine]:=TGLImage.create(ApplicationData(BotFolder+'BotMine.png'),true);
+  BotsImg[botfighter]:=TGLImage.create(ApplicationData(BotFolder+'BotFighter.png'),true);
+  BotsImg[botshielder]:=TGLImage.create(ApplicationData(BotFolder+'BotShielder.png'),true);
+  BotsImg[bothealer]:=TGLImage.create(ApplicationData(BotFolder+'Healer.png'),true);
+  BotsImg[botteleporter]:=TGLImage.create(ApplicationData(BotFolder+'Teleporter.png'),true);
+  BotsImg[heavybot]:=TGLImage.create(ApplicationData(BotFolder+'HeavyBot.png'),true);
+  BotsImg[botautohealer]:=TGLImage.create(ApplicationData(BotFolder+'AutoHealer.png'),true);
+  BotsImg[botDisabler]:=TGLImage.create(ApplicationData(BotFolder+'BotDisabler.png'),true);
+  BotsImg[botFIWI]:=TGLImage.create(ApplicationData(BotFolder+'FI-WI.png'),true);
 
-  PlayerMissle:=TGLImage.create(BotFolder+'playermissle.png',true);
-  EnemyMissle:=TGLImage.create(BotFolder+'enemymissle.png',true);
-  BossMissle:=TGLImage.create(BotFolder+'bossmissle.png',true);
-  BigMissle:=TGLImage.create(BotFolder+'BigMissle.png',true);
-  FIWIMissle:=TGLImage.create(BotFolder+'FIWI_missle.png',true);
-  FighterMissle:=TGLImage.create(BotFolder+'FighterMissle.png',true);
-  DisablerMissle:=TGLImage.create(BotFolder+'DisablerMissle.png',true);
+  PlayerMissle:=TGLImage.create(ApplicationData(BotFolder+'playermissle.png'),true);
+  EnemyMissle:=TGLImage.create(ApplicationData(BotFolder+'enemymissle.png'),true);
+  BossMissle:=TGLImage.create(ApplicationData(BotFolder+'bossmissle.png'),true);
+  BigMissle:=TGLImage.create(ApplicationData(BotFolder+'BigMissle.png'),true);
+  FIWIMissle:=TGLImage.create(ApplicationData(BotFolder+'FIWI_missle.png'),true);
+  FighterMissle:=TGLImage.create(ApplicationData(BotFolder+'FighterMissle.png'),true);
+  DisablerMissle:=TGLImage.create(ApplicationData(BotFolder+'DisablerMissle.png'),true);
 
-  explosionImg[1]:=TGlImage.create(ExpFolder+'explosion3_CC0_by_StumpyStrust.png',true);
-  explosionImg[2]:=TGlImage.create(ExpFolder+'explosion6a_CC0_by_StumpyStrust.png',true);
-  explosionImg[3]:=TGlImage.create(ExpFolder+'explosion6b_CC0_by_StumpyStrust.png',true);
-  explosionImg[4]:=TGlImage.create(ExpFolder+'explosion6c_CC0_by_StumpyStrust.png',true);
-  explosionImg[5]:=TGlImage.create(ExpFolder+'explosion9_CC0_by_StumpyStrust.png',true);
-  explosionImg[6]:=TGlImage.create(ExpFolder+'explosion10_CC0_by_StumpyStrust.png',true);
+  explosionImg[1]:=TGlImage.create(ApplicationData(ExpFolder+'explosion3_CC0_by_StumpyStrust.png'),true);
+  explosionImg[2]:=TGlImage.create(ApplicationData(ExpFolder+'explosion6a_CC0_by_StumpyStrust.png'),true);
+  explosionImg[3]:=TGlImage.create(ApplicationData(ExpFolder+'explosion6b_CC0_by_StumpyStrust.png'),true);
+  explosionImg[4]:=TGlImage.create(ApplicationData(ExpFolder+'explosion6c_CC0_by_StumpyStrust.png'),true);
+  explosionImg[5]:=TGlImage.create(ApplicationData(ExpFolder+'explosion9_CC0_by_StumpyStrust.png'),true);
+  explosionImg[6]:=TGlImage.create(ApplicationData(ExpFolder+'explosion10_CC0_by_StumpyStrust.png'),true);
 
-  ShieldImg[0]:=TGLImage.create(BotFolder+'shield1.png',true);
-  ShieldImg[1]:=TGLImage.create(BotFolder+'shield2.png',true);
-  ShieldImg[2]:=TGLImage.create(BotFolder+'shield3.png',true);
-  ShieldImg[3]:=TGLImage.create(BotFolder+'shield4.png',true);
-  HealImg[0]:=TGLImage.create(BotFolder+'Healing1.png',true);
-  HealImg[1]:=TGLImage.create(BotFolder+'Healing2.png',true);
-  HealImg[2]:=TGLImage.create(BotFolder+'Healing3.png',true);
-  HealImg[3]:=TGLImage.create(BotFolder+'Healing4.png',true);
-  PlayerDisabledImg[0]:=TGLImage.create(BotFolder+'PlayerDisabled1.png',true);
-  PlayerDisabledImg[1]:=TGLImage.create(BotFolder+'PlayerDisabled2.png',true);
-  PlayerDisabledImg[2]:=TGLImage.create(BotFolder+'PlayerDisabled3.png',true);
-  PlayerDisabledImg[3]:=TGLImage.create(BotFolder+'PlayerDisabled4.png',true);
+  ShieldImg[0]:=TGLImage.create(ApplicationData(BotFolder+'shield1.png'),true);
+  ShieldImg[1]:=TGLImage.create(ApplicationData(BotFolder+'shield2.png'),true);
+  ShieldImg[2]:=TGLImage.create(ApplicationData(BotFolder+'shield3.png'),true);
+  ShieldImg[3]:=TGLImage.create(ApplicationData(BotFolder+'shield4.png'),true);
+  HealImg[0]:=TGLImage.create(ApplicationData(BotFolder+'Healing1.png'),true);
+  HealImg[1]:=TGLImage.create(ApplicationData(BotFolder+'Healing2.png'),true);
+  HealImg[2]:=TGLImage.create(ApplicationData(BotFolder+'Healing3.png'),true);
+  HealImg[3]:=TGLImage.create(ApplicationData(BotFolder+'Healing4.png'),true);
+  PlayerDisabledImg[0]:=TGLImage.create(ApplicationData(BotFolder+'PlayerDisabled1.png'),true);
+  PlayerDisabledImg[1]:=TGLImage.create(ApplicationData(BotFolder+'PlayerDisabled2.png'),true);
+  PlayerDisabledImg[2]:=TGLImage.create(ApplicationData(BotFolder+'PlayerDisabled3.png'),true);
+  PlayerDisabledImg[3]:=TGLImage.create(ApplicationData(BotFolder+'PlayerDisabled4.png'),true);
 
 
-  TeleportImg:=TGLImage.create(BotFolder+'teleporting2.png',true);
+  TeleportImg:=TGLImage.create(ApplicationData(BotFolder+'teleporting2.png'),true);
 end;
 {------------------------------------------------------------------------------------}
 {====================================================================================}

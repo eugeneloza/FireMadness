@@ -6,9 +6,9 @@ interface
 
 uses
   Classes, SysUtils,
-  CastleGLImages,
+  CastleGLImages, CastleFilesUtils,
   castleVectors, {castleImages,}
-  CastleFreeType, CastleFonts, CastleUnicode, CastleStringUtils,
+  CastleFreeType, CastleFonts, MyFont, CastleUnicode, CastleStringUtils,
   Translation, general_var;
 
 type TSimpleProcedure=procedure;
@@ -60,7 +60,7 @@ procedure TGLButton.SetFontSize(fs:integer);
 begin
   fontSize:=fs;
   if font<>nil then freeandnil(font);
-  Font:=TTextureFont.Create(BoldFontFile,FontSize,true,MyCharSet);
+  Font:=GetFireFont(font_bold, fs)
 end;
 
 procedure TGLButton.ResizeMe(cx,cy,cw,ch:integer);

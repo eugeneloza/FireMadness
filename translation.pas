@@ -5,36 +5,32 @@ unit Translation;
 interface
 
 uses Sysutils,
-     CastleUnicode,CastleStringUtils,
-     general_var;
+     CastleDownload, classes,
+     castleFilesUtils,
+     general_var, MyFont;
 
 type TLanguage=(language_english,language_russian,language_ukrainian);
 
 var TXT:array of string;
     f1:Text;
-    MyCharSet:TUnicodeCharList;
     CurrentLanguage:TLanguage;
 
 procedure loadTranslation(language:TLanguage);
-procedure InitCharSet;
+
 
 implementation
 
 {$Q+}{$R+}
 
-procedure InitCharSet;
-begin
-  if MyCharSet=nil then begin
-      MyCharSet:=TUnicodeCharList.Create;
-      MyCharSet.add(SimpleAsciiCharacters);
-      MyCharSet.add('śЁЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮёйцукенгшщзхъфывапролджэячсмитьбюІЇЄіїє');
-    end;//else FreeAndNil(CharSet);
-end;
 
 procedure loadTranslation(language:TLanguage);
 var filename:string;
     s:string;
     line_n,errorcode:integer;
+
+    MyStream:TStream;
+    MyStrings:TStringList;
+    i:integer;
 begin
   InitCharSet;
   currentLanguage:=language;
@@ -45,16 +41,23 @@ begin
     language_russian:filename:='Russian.txt';
     language_ukrainian:filename:='Ukrainian.txt';
   end;
-  Assign(f1,TranslationFolder+filename);
-  reset(f1);
+//  AssignFile(f1,ApplicationData(TranslationFolder+filename){copy(ApplicationData(TranslationFolder+filename),8,length(ApplicationData(TranslationFolder+filename)))});
+  MyStream:=Download(ApplicationData(TranslationFolder+filename));
+  MyStrings:=TStringList.create;
+  MyStrings.LoadFromStream(MyStream);
+
+  i:=0;
   repeat
-    readln(f1,s);
+    s:=MyStrings.Strings[i];
     val(copy(trim(s),1,3),line_n,errorcode);
     if errorcode=0 then begin
       TXT[line_n]:=trim(copy(trim(s),6,length(s)-5));
     end;
-  until eof(f1);
-  closefile(f1);
+    inc(i);
+  until i>=MyStrings.Count;
+
+  freeandnil(MyStream);
+  FreeAndNil(MyStrings);
 end;
 
 

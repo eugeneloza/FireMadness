@@ -13,25 +13,51 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.}
 
-program FireMadness;
+Unit FireMadness;
 
 {$IFDEF Windows}{$Apptype GUI}{$ENDIF}
 
-uses  {$IFDEF UNIX}cthreads,{$ENDIF}Classes, SysUtils,
-  castle_window, CastleWindow, castle_base,
-  CastleGLImages,
+interface
+
+Uses CastleWindow;
+
+var Window:TCastleWindowCustom;
+
+implementation
+
+uses  Classes, SysUtils, fgl,
+  {castle_base,} castleFilesUtils,
+  CastleGLImages, CastleGlUtils,
   castleVectors, castleImages,
   CastleKeysMouse, CastleJoysticks,
   CastleFreeType, CastleFonts, CastleUnicode, CastleStringUtils,
   Game_controls, general_var, Sound_Music, botsdata,
-  map_manager, Translation, GL_button;
+  map_manager, Translation, GL_button, MyFont;
 
 const MinWindowWidth=320;
       minWindowHeight=240;
 
-
 type game_context_type=(gameplay_title,gameplay_play);
      Current_title_type=(currentTitle_title,currentTitle_prologue,currenttitle_bestiary, currentTitle_credits, currentTitle_mapselect);
+     TTouchType=(FireTouch,MoveTouch,OtherTouch,CancelTouch);
+
+type TMyTouch=class (TObject)
+ FingerIndex:integer;
+ touchType:TTouchType;
+
+ LastAction:TTouchType;
+ LastPlayer:integer;
+
+ //x,y:integer;
+ constructor create(const ThisFingerIndex:integer{const Event: TInputPressRelease});
+ //procedure update(x1,y1:single);
+
+ procedure doMouseFire(const XX,YY:single);
+ procedure doMouseMove(const XX,YY:single);
+ procedure doMouseCtrl(const XX,YY:single);
+end;
+
+type TMyTouchList = specialize TFPGObjectList<TMyTouch>;
 
 TEventsHandler = class
   procedure JoyMove(const Joy: PJoy; const Axis: Byte; const Value: Single);
@@ -40,7 +66,8 @@ end;
 
 {---------------------------}
 
-var Window:TCastleWindow;
+var TouchArray:TMyTouchList;
+
   startNewGame:boolean;
   firstrender:boolean;
   Current_game_context:game_context_type=gameplay_title;
@@ -91,6 +118,23 @@ procedure NextStoryStage(setStoryStage:integer=-1); forward;
 {====================================================================================}
 {------------------------------------------------------------------------------------}
 
+constructor TMyTouch.create(const ThisFingerIndex:integer{const Event: TInputPressRelease});
+begin
+  FingerIndex:=ThisFingerIndex;
+  LastPlayer:=-1;
+  LastAction:=CancelTouch;
+  {x:=round(event.position[0]);
+  y:=round(event.position[1]);}
+end;
+
+{procedure TMyTouch.update(x1,y1:single);
+begin
+   x:=round(x1);
+   y:=round(y1);
+end;    }
+
+{----------------------------------------}
+
 
 const maxBlackIntensity=120;
       BlackTransparency=0.90;
@@ -131,7 +175,7 @@ end;
 procedure MenuKeyRelease(Container: TUIContainer; const Event: TInputPressRelease);
 var i:integer;
 begin
-  if (event.key=k_none) and (mouseMenuPress) then begin
+  if (Event.EventType = itMouseButton) and (mouseMenuPress) then begin
     for i:=low(buttons) to high(buttons) do if buttons[i]<>nil then buttons[i].checkClick(round(event.Position[0]),round(event.position[1]));
   end;
 end;
@@ -147,36 +191,11 @@ begin
     k_6:StartGame(map_test);
     k_7:StartGame(map_Crossfire);
     k_9:NextStoryStage(1);
-    k_f1: begin
-            if Player2Active then begin
-              DifficultyLevel.EnemyFirePowerMultiplier/=hotSeatDifficultyMultiplier;
-              DifficultyLevel.EnemyHealthMultiplier/=2;
-              DifficultyLevel.EnemySpawnRateMultiplier/=hotSeatDifficultyMultiplier;
-              DifficultyLevel.simultaneous_active-=1;
-            end;
-            Player2Active:=false;
-            RightInterface:=32;
-            LeftInterface:=0;
-//            PlayerControls[0].makeControls(controls_cursor,controls_WASD);
-          end;
-    k_f2: begin
-            if not Player2Active then begin
-              DifficultyLevel.EnemyFirePowerMultiplier*=hotSeatDifficultyMultiplier;
-              DifficultyLevel.EnemyHealthMultiplier*=2;
-              DifficultyLevel.EnemySpawnRateMultiplier*=hotSeatDifficultyMultiplier;
-              DifficultyLevel.simultaneous_active+=1;
-            end;
-            Player2Active:=true;
-            LeftInterface:=32;
-            RightInterface:=32;
-//            PlayerControls[0].makeControls(controls_numbers,controls_cursor);
-//            PlayerControls[1].makeControls(controls_TFGH,controls_WASD);
-          end;
     k_f5:difficultyLevel:=Singleplayer_easy;
     k_f6:difficultyLevel:=Singleplayer_normal;
     k_f7:difficultyLevel:=Singleplayer_hard;
     k_f8:difficultyLevel:=Singleplayer_insane;
-    k_none:if event.IsMouseButton(MBLeft) then MouseMenuPress:=true;
+    k_none:if (Event.EventType = itMouseButton) then MouseMenuPress:=true;
   end;
 end;
 
@@ -536,10 +555,6 @@ begin
 end;
 procedure TogglePlayer1;
 begin
- {   DifficultyLevel.EnemyFirePowerMultiplier/=hotSeatDifficultyMultiplier;
-    DifficultyLevel.EnemyHealthMultiplier/=2;
-    DifficultyLevel.EnemySpawnRateMultiplier/=hotSeatDifficultyMultiplier;
-    DifficultyLevel.simultaneous_active-=1;}
     case CurrentDifficultyLevel of
       difficulty_easy:   difficultyLevel:=Singleplayer_easy;
       difficulty_normal: difficultyLevel:=Singleplayer_normal;
@@ -563,6 +578,8 @@ begin
    Player2Active:=true;
    LeftInterface:=32;
    RightInterface:=32;
+   LeftInterface:=128;
+   RightInterface:=128;
    PlayerControls[0]:=PlayerControls[3];
  end;
 end;
@@ -795,12 +812,12 @@ procedure MakeTitleScreen;
 begin
   showBestiary:=0;
   ShowPrologue:=0;
-  TitleBackground:=TGLImage.Create(TitlescreenFolder+'FireMadness.jpg',true);
-  BlackScreenImg:=TGLImage.Create(TitlescreenFolder+'Black.jpg',true);
+  TitleBackground:=TGLImage.Create(ApplicationData(TitlescreenFolder+'FireMadness.jpg'),true);
+  BlackScreenImg:=TGLImage.Create(ApplicationData(TitlescreenFolder+'Black.jpg'),true);
   BlackScreenImg.Alpha:=acFullRange;
-  CGE_icon:=TGLImage.Create(TitlescreenFolder+'castle_game_engine_icon_transparent.png',true);
-  FlamesTextImage:=TGLImage.Create(TitlescreenFolder+'flames.png',true);
-  buttonIMg:=TGLImage.create(TitlescreenFolder+'button.png',true);
+  CGE_icon:=TGLImage.Create(ApplicationData(TitlescreenFolder+'castle_game_engine_icon_transparent.png'),true);
+  FlamesTextImage:=TGLImage.Create(ApplicationData(TitlescreenFolder+'flames.png'),true);
+  buttonIMg:=TGLImage.create(ApplicationData(TitlescreenFolder+'button.png'),true);
 
   makeButtons;
 
@@ -828,95 +845,195 @@ end;
 {====================================================================================}
 {------------------------------------------------------------------------------------}
 
+procedure TMyTouch.doMouseFire(const XX,YY:single);
+var dx,dy:single;
+  PlayerBot:TPlayerBot;
+begin
+  PlayerBot:=bots[0] as TPlayerBot;
+  dx:=(XX-GameScreenStartX)-(PlayerBot.x+0.5)*scale;
+  dy:=(YY-GameScreenStartY)-(PlayerBot.y+0.5)*scale;
+  if abs(dx)>abs(dy) then begin
+    if (dx<0) then PlayerBot.PlayerFire(-1,0) else PlayerBot.PlayerFire(+1,0);
+  end else begin
+    if (dy<0) then PlayerBot.PlayerFire(0,-1) else PlayerBot.PlayerFire(0,+1);
+  end;
+end;
+
+procedure TMyTouch.doMouseMove(const XX,YY:single);
+var dx,dy:single;
+  PlayerBot:TPlayerBot;
+begin
+  PlayerBot:=bots[0] as TPlayerBot;
+  dx:=(XX-GameScreenStartX)-(PlayerBot.x+0.5)*scale;
+  dy:=(YY-GameScreenStartY)-(PlayerBot.y+0.5)*scale;
+  if abs(dx)>abs(dy) then begin
+    if (dx<0) then PlayerBot.PlayerMove(-1,0) else PlayerBot.PlayerMove(+1,0);
+  end else begin
+    if (dy<0) then PlayerBot.PlayerMove(0,-1) else PlayerBot.PlayerMove(0,+1);
+  end;
+end;
+
+procedure TMyTouch.doMouseCtrl(const XX,YY:single);
+type TouchControlStyle=(controlmove,controlfire);
+var PlayerBot:TPlayerBot;
+    dx,dy:integer;
+    mirrorControl:boolean;
+    ThisControl:TouchControlStyle;
+begin
+  if (XX>GameScreenStartX+128) and (XX<GameScreenEndX-128) then exit;
+  if XX>=GameScreenEndX-128 then begin
+     if lastPlayer=1 then exit;
+     PlayerBot:=bots[0] as TPlayerBot;
+     dx:=round(XX)-(Window.Width-64);
+     MirrorControl:=false;
+     LastPlayer:=0;
+  end
+  else begin
+     if not Player2Active then exit;
+     if lastPlayer=0 then exit;
+     PlayerBot:=bots[1] as TPlayerBot;
+     dx:=round(XX)-64;
+     MirrorControl:=true;
+     LastPlayer:=1;
+  end;
+
+  if (YY<(GameScreenEndY-GameScreenStartY)/2) {and (YY>=GameScreenStartY)} then begin
+    dy:=round(YY)-64;
+    if MirrorControl then ThisControl:=controlmove else ThisControl:=controlfire;
+  end else
+  {if (YY>GameScreenEndY-128) and (YY<=GameScreenEndY) then} begin
+    dy:=round(YY)-GameScreenEndY+64;
+    if MirrorControl then ThisControl:=controlfire else ThisControl:=controlmove;
+  end;
+  if ThisControl=controlmove then begin
+    if LastAction=FireTouch then exit;
+    LastAction:=MoveTouch;
+    if abs(dx)>abs(dy) then begin
+      if (dx<0) then PlayerBot.PlayerMove(-1,0) else PlayerBot.PlayerMove(+1,0);
+    end else begin
+      if (dy<0) then PlayerBot.PlayerMove(0,-1) else PlayerBot.PlayerMove(0,+1);
+    end;
+  end else begin
+    if LastAction=MoveTouch then exit;
+    LastAction:=FireTouch;
+    if abs(dx)>abs(dy) then begin
+      if (dx<0) then PlayerBot.PlayerFire(-1,0) else PlayerBot.PlayerFire(+1,0);
+    end else begin
+      if (dy<0) then PlayerBot.PlayerFire(0,-1) else PlayerBot.PlayerFire(0,+1);
+    end;
+  end;
+end;
+
 procedure GameKeyPress(Container: TUIContainer; const Event: TInputPressRelease);
-var dx,dy:float;
+var
     PlayerBot:TPlayerBot;
+    NewEventTouch:TMyTouch;
     i:integer;
 begin
  PauseMode:=false;
- if event.key=K_Pause then pauseMode:=not PauseMode;
- if event.key=K_f10 then begin Current_game_context:=gameplay_title; CurrentTitleDisplay:=currentTitle_title; window.OnPress:=@MenuKeyPress; window.OnRelease:=@MenuKeyRelease end;
-// if event.key=K_f9 then for i:= low(bots) to high(bots) do if bots[i] is THostileBot then bots[i].hitme(bots[i].maxhp);
- if event.key=k_f5 then doLoadNewMusic;
- for i:=0 to nplayers-1 do begin
-   PlayerBot:=bots[i] as TPlayerBot;
-   if not firstrender then begin
-  {  mouseFire:=false;}
-    if PlayerBot.hp>0 then with PlayerControls[i] do begin
-      if event.key=MoveKeys.up then    begin PlayerBot.PlayerMove(0,+1); lastMoveKeyPress:=Event.Key; end;
-      if event.key=MoveKeys.down then  begin PlayerBot.PlayerMove(0,-1); lastMoveKeyPress:=Event.Key; end;
-      if event.key=MoveKeys.right then begin PlayerBot.PlayerMove(+1,0); lastMoveKeyPress:=Event.Key; end;
-      if event.key=MoveKeys.left then  begin PlayerBot.PlayerMove(-1,0); lastMoveKeyPress:=Event.Key; end;
-      if event.key=FireKeys.up then    begin PlayerBot.PlayerFire(0,+1); lastFireKeyPress:=Event.Key; end;
-      if event.key=FireKeys.down then  begin PlayerBot.PlayerFire(0,-1); lastFireKeyPress:=Event.Key; end;
-      if event.key=FireKeys.right then begin PlayerBot.PlayerFire(+1,0); lastFireKeyPress:=Event.Key; end;
-      if event.key=FireKeys.left then  begin PlayerBot.PlayerFire(-1,0); lastFireKeyPress:=Event.Key; end;
-    {  if event.key=K_None then
-        if event.MouseButton=mbLeft then begin
-            if (Event.Position[0]>GameScreenStartX) and (Event.Position[0]<GameScreenEndX) then begin
-              //do game
-      {        mousefire:=true;}
-              dx:=(Event.Position[0]-GameScreenStartX)-(PlayerBot.x+0.5)*scale;
-              dy:=(Event.Position[1])-(PlayerBot.y+0.5)*scale;
-              if abs(dx)>abs(dy) then begin
-                if (dx<0) then PlayerBot.Move(-1,0) else PlayerBot.Move(+1,0);
-              end else begin
-                if (dy<0) then PlayerBot.Move(0,-1) else PlayerBot.Move(0,+1);
-              end;
-            end else begin
-              //do side menu
-            end;
-        end; {mouse @key_none}}
-
-    end;
-   end;
- end;{for i 0 to nplayers}
  if Event.EventType = itMouseButton then begin
-{  if (Event.Position[0]>GameScreenStartX) and (Event.Position[0]<GameScreenEndX) then begin
-    //do game
-{        mousefire:=true;}
-    dx:=(Event.Position[0]-GameScreenStartX)-(PlayerBot.x+0.5)*scale;
-    dy:=(Event.Position[1])-(PlayerBot.y+0.5)*scale;
-    if abs(dx)>abs(dy) then begin
-      if (dx<0) then PlayerBot.Move(-1,0) else PlayerBot.Move(+1,0);
-    end else begin
-      if (dy<0) then PlayerBot.Move(0,-1) else PlayerBot.Move(0,+1);
-    end;
-  end else begin
-    //do side menu
-  end;}
- end;
+   NewEventTouch:=TMyTouch.create(event.FingerIndex);
+   NewEventTouch.touchType:=FireTouch;
+   for i:=0 to TouchArray.Count-1 do
+     if TouchArray[i].touchType=FireTouch then NewEventTouch.touchType:=MoveTouch else
+     if TouchArray[i].touchType=MoveTouch then NewEventTouch.touchType:=CancelTouch;
+
+   if (LeftInterface=128) and (event.Position[0]<GameScreenStartX) then begin
+     newEventTouch.touchType:=OtherTouch;
+   end else
+   if (RightInterface=128) and (event.Position[0]>GameScreenEndX) then begin
+     newEventTouch.touchType:=OtherTouch;
+   end;
+
+   if NewEventTouch.touchType=FireTouch then NewEventTouch.doMouseFire(event.Position[0],event.Position[1]) else
+   if NewEventTouch.touchType=MoveTouch then NewEventTouch.doMouseMove(event.Position[0],event.Position[1]) else
+   if NewEventTouch.touchType=OtherTouch then NewEventTouch.doMouseCtrl(event.Position[0],event.Position[1]);
+   if NewEventTouch.touchType<>CancelTouch then
+   TouchArray.Add(NewEventTouch);
+ end else begin
+     if event.key=K_Pause then pauseMode:=not PauseMode;
+     if event.key=K_f10 then begin Current_game_context:=gameplay_title; CurrentTitleDisplay:=currentTitle_title; window.OnPress:=@MenuKeyPress; window.OnRelease:=@MenuKeyRelease end;
+    // if event.key=K_f9 then for i:= low(bots) to high(bots) do if bots[i] is THostileBot then bots[i].hitme(bots[i].maxhp);
+     if event.key=k_f5 then doLoadNewMusic;
+     for i:=0 to nplayers-1 do begin
+       PlayerBot:=bots[i] as TPlayerBot;
+       if not firstrender then begin
+      {  mouseFire:=false;}
+        if PlayerBot.hp>0 then with PlayerControls[i] do begin
+          if event.key=MoveKeys.up then    begin PlayerBot.PlayerMove(0,+1); lastMoveKeyPress:=Event.Key; end;
+          if event.key=MoveKeys.down then  begin PlayerBot.PlayerMove(0,-1); lastMoveKeyPress:=Event.Key; end;
+          if event.key=MoveKeys.right then begin PlayerBot.PlayerMove(+1,0); lastMoveKeyPress:=Event.Key; end;
+          if event.key=MoveKeys.left then  begin PlayerBot.PlayerMove(-1,0); lastMoveKeyPress:=Event.Key; end;
+          if event.key=FireKeys.up then    begin PlayerBot.PlayerFire(0,+1); lastFireKeyPress:=Event.Key; end;
+          if event.key=FireKeys.down then  begin PlayerBot.PlayerFire(0,-1); lastFireKeyPress:=Event.Key; end;
+          if event.key=FireKeys.right then begin PlayerBot.PlayerFire(+1,0); lastFireKeyPress:=Event.Key; end;
+          if event.key=FireKeys.left then  begin PlayerBot.PlayerFire(-1,0); lastFireKeyPress:=Event.Key; end;
+        end;
+       end;
+     end;{for i 0 to nplayers}
+  end;
 end;
 
 procedure GameKeyRelease(Container: TUIContainer; const Event: TInputPressRelease);
 var playerBot:TPlayerBot;
     i:integer;
 begin
- for i:=0 to nplayers-1 do begin
-   PlayerBot:=bots[i] as TPlayerBot;
-   if PlayerBot.hp>0 then with PlayerControls[i] do begin
-     if (Event.Key=moveKeys.up) or(Event.Key=moveKeys.down) or (Event.Key=moveKeys.left) or (Event.Key=moveKeys.right) then
-        if event.key=lastMoveKeyPress then MovePressed:=false;
-     if (Event.Key=FireKeys.up) or(Event.Key=FireKeys.down) or (Event.Key=FireKeys.left) or (Event.Key=FireKeys.right) then
-        if event.Key=LastFireKeyPress then FirePressed:=false;
+ if Event.EventType = itMouseButton then begin
+    if touchArray.count>0 then begin
+     i:=0;
+     repeat
+       if touchArray[i].fingerindex=event.fingerindex then begin
+        if touchArray[i].touchType=FireTouch then playerControls[0].FirePressed:=false else
+        if touchArray[i].touchType=MoveTouch then playerControls[0].MovePressed:=false else begin
+          if TouchArray[i].LastPlayer=0 then begin
+            if touchArray[i].LastAction=FireTouch then playerControls[0].FirePressed:=false else
+            if touchArray[i].LastAction=MoveTouch then playerControls[0].MovePressed:=false;
+          end else begin
+            if touchArray[i].LastAction=FireTouch then playerControls[1].FirePressed:=false else
+            if touchArray[i].LastAction=MoveTouch then playerControls[1].MovePressed:=false;
+          end;
+        end;
+
+        touchArray.delete(i);
+         i:=touchArray.count;
+       end;
+       inc(i);
+     until (i>=touchArray.Count);
+    end;
+ end else
+    for i:=0 to nplayers-1 do begin
+     PlayerBot:=bots[i] as TPlayerBot;
+     if PlayerBot.hp>0 then with PlayerControls[i] do begin
+       if (Event.Key=moveKeys.up) or(Event.Key=moveKeys.down) or (Event.Key=moveKeys.left) or (Event.Key=moveKeys.right) then
+          if event.key=lastMoveKeyPress then MovePressed:=false;
+       if (Event.Key=FireKeys.up) or(Event.Key=FireKeys.down) or (Event.Key=FireKeys.left) or (Event.Key=FireKeys.right) then
+          if event.Key=LastFireKeyPress then FirePressed:=false;
+     end;
    end;
- end;
 end;
 
-{procedure GameKeyMotion(Container: TUIContainer; const Event: TInputMotion);
-var dx,dy:float;
+procedure GameKeyMotion(Container: TUIContainer; const Event: TInputMotion);
+var
+  i:integer;
 begin
- if mousefire then begin
-   dx:=(Event.Position[0]-GameScreenStartX)-(PlayerBot.x-0.5)*scale;
-   dy:=(Event.Position[1])-(PlayerBot.y-0.5)*scale;
-   if abs(dx)>abs(dy) then begin
-     if (dx<0) then PlayerBot.PlayerFire(-1,0) else PlayerBot.PlayerFire(+1,0);
-   end else begin
-     if (dy<0) then PlayerBot.PlayerFire(0,-1) else PlayerBot.PlayerFire(0,+1);
-   end;
+ {if Event.EventType = itMouseButton then} begin
+    if touchArray.count>0 then begin
+     i:=0;
+     repeat
+       if touchArray[i].fingerindex=event.fingerindex then begin
+         if touchArray[i].touchType=FireTouch then touchArray[i].doMouseFire(Event.Position[0],Event.Position[1]) else
+         if touchArray[i].touchType=MoveTouch then touchArray[i].doMouseMove(Event.Position[0],Event.Position[1]) else
+         if touchArray[i].touchType=OtherTouch then touchArray[i].doMouseCtrl(event.Position[0],event.Position[1]);
+
+         //touchArray[i].update(event.position[0],event.position[1]);
+         i:=touchArray.count;
+       end;
+       inc(i);
+     until (i>=touchArray.Count);
+    end;
 
  end;
-end;            }
+end;
 
 {-------- Gamepad support by Tomasz Wojtyś -----------}
 
@@ -1008,29 +1125,29 @@ begin
   if wall<>nil then freeandnil(wall);
   if map.WallTile<0 then TileSelect:=random(5) else TileSelect:=map.WallTile;
   case TileSelect of
-    0:Wall:=TGLImage.create(MapFolder+'walls'+pathdelim+'Pattern_002_CC0_by_Nobiax_diffuse.png',true);
-    1:Wall:=TGLImage.create(MapFolder+'walls'+pathdelim+'Pattern_003_CC0_by_Nobiax_diffuse.png',true);
-    2:Wall:=TGLImage.create(MapFolder+'walls'+pathdelim+'Pattern_015_CC0_by_Nobiax_specular.png',true);
-    3:Wall:=TGLImage.create(MapFolder+'walls'+pathdelim+'Pattern_026_CC0_by_Nobiax_specular.png',true);
-    4:Wall:=TGLImage.create(MapFolder+'walls'+pathdelim+'Pattern_144_CC0_by_Nobiax_diffuse.png',true);
+    0:Wall:=TGLImage.create(ApplicationData(MapFolder+'walls'+pathdelim+'Pattern_002_CC0_by_Nobiax_diffuse.png'),true);
+    1:Wall:=TGLImage.create(ApplicationData(MapFolder+'walls'+pathdelim+'Pattern_003_CC0_by_Nobiax_diffuse.png'),true);
+    2:Wall:=TGLImage.create(ApplicationData(MapFolder+'walls'+pathdelim+'Pattern_015_CC0_by_Nobiax_specular.png'),true);
+    3:Wall:=TGLImage.create(ApplicationData(MapFolder+'walls'+pathdelim+'Pattern_026_CC0_by_Nobiax_specular.png'),true);
+    4:Wall:=TGLImage.create(ApplicationData(MapFolder+'walls'+pathdelim+'Pattern_144_CC0_by_Nobiax_diffuse.png'),true);
   end;
 
   if pass<>nil then freeandnil(pass);
   if map.FloorTile<0 then TileSelect:=random(13) else TileSelect:=map.FloorTile;
   case TileSelect of
-    0:Pass:=TGLImage.create(MapFolder+'floors'+pathdelim+'Pattern_009_CC0_by_Nobiax_specular.png',true);
-    1:Pass:=TGLImage.create(MapFolder+'floors'+pathdelim+'Pattern_023_CC0_by_Nobiax_diffuse.png',true);
-    2:Pass:=TGLImage.create(MapFolder+'floors'+pathdelim+'Pattern_024_CC0_by_Nobiax_specular.png',true);
-    3:Pass:=TGLImage.create(MapFolder+'floors'+pathdelim+'Pattern_027_CC0_by_Nobiax_specular.png',true);
-    4:Pass:=TGLImage.create(MapFolder+'floors'+pathdelim+'Pattern_033_CC0_by_Nobiax_specular.png',true);
-    5:Pass:=TGLImage.create(MapFolder+'floors'+pathdelim+'Pattern_037_CC0_by_Nobiax_specular.png',true);
-    6:Pass:=TGLImage.create(MapFolder+'floors'+pathdelim+'Pattern_039_CC0_by_Nobiax_specular.png',true);
-    7:Pass:=TGLImage.create(MapFolder+'floors'+pathdelim+'Pattern_040_CC0_by_Nobiax_specular.png',true);
-    8:Pass:=TGLImage.create(MapFolder+'floors'+pathdelim+'Pattern_040_CC0_by_Nobiax_specular_full.png',true);
-    9:Pass:=TGLImage.create(MapFolder+'floors'+pathdelim+'Pattern_041_CC0_by_Nobiax_specular.png',true);
-   10:Pass:=TGLImage.create(MapFolder+'floors'+pathdelim+'Pattern_241_CC0_by_Nobiax_diffuse.png',true);
-   11:Pass:=TGLImage.create(MapFolder+'floors'+pathdelim+'Pattern_244_CC0_by_Nobiax_diffuse.png',true);
-   12:Pass:=TGLImage.create(MapFolder+'floors'+pathdelim+'Pattern_274_CC0_by_Nobiax_specular.png',true);
+    0:Pass:=TGLImage.create(ApplicationData(MapFolder+'floors'+pathdelim+'Pattern_009_CC0_by_Nobiax_specular.png'),true);
+    1:Pass:=TGLImage.create(ApplicationData(MapFolder+'floors'+pathdelim+'Pattern_023_CC0_by_Nobiax_diffuse.png'),true);
+    2:Pass:=TGLImage.create(ApplicationData(MapFolder+'floors'+pathdelim+'Pattern_024_CC0_by_Nobiax_specular.png'),true);
+    3:Pass:=TGLImage.create(ApplicationData(MapFolder+'floors'+pathdelim+'Pattern_027_CC0_by_Nobiax_specular.png'),true);
+    4:Pass:=TGLImage.create(ApplicationData(MapFolder+'floors'+pathdelim+'Pattern_033_CC0_by_Nobiax_specular.png'),true);
+    5:Pass:=TGLImage.create(ApplicationData(MapFolder+'floors'+pathdelim+'Pattern_037_CC0_by_Nobiax_specular.png'),true);
+    6:Pass:=TGLImage.create(ApplicationData(MapFolder+'floors'+pathdelim+'Pattern_039_CC0_by_Nobiax_specular.png'),true);
+    7:Pass:=TGLImage.create(ApplicationData(MapFolder+'floors'+pathdelim+'Pattern_040_CC0_by_Nobiax_specular.png'),true);
+    8:Pass:=TGLImage.create(ApplicationData(MapFolder+'floors'+pathdelim+'Pattern_040_CC0_by_Nobiax_specular_full.png'),true);
+    9:Pass:=TGLImage.create(ApplicationData(MapFolder+'floors'+pathdelim+'Pattern_041_CC0_by_Nobiax_specular.png'),true);
+   10:Pass:=TGLImage.create(ApplicationData(MapFolder+'floors'+pathdelim+'Pattern_241_CC0_by_Nobiax_diffuse.png'),true);
+   11:Pass:=TGLImage.create(ApplicationData(MapFolder+'floors'+pathdelim+'Pattern_244_CC0_by_Nobiax_diffuse.png'),true);
+   12:Pass:=TGLImage.create(ApplicationData(MapFolder+'floors'+pathdelim+'Pattern_274_CC0_by_Nobiax_specular.png'),true);
   end;
 
   maxx:=map.maxX;
@@ -1108,15 +1225,15 @@ begin
   PauseMode:=false;
   window.OnPress:=@GameKeyPress;
   window.onRelease:=@GameKeyRelease;
-  //window.OnMotion:=@GameKeyMotion;
+  window.OnMotion:=@GameKeyMotion;
 end;
 
 {------------------------------------------------------------------------------------}
 
 procedure doLoadFonts;
 begin
-  normalFont:= TTextureFont.Create(NormalFontFile,16,true,MyCharSet);
-  boldFont:= TTextureFont.Create(BoldFontFile,22,true,MyCharSet);
+  normalFont:= GetFireFont(font_normal,16);
+  boldFont:= GetFireFont(font_bold,22);
 end;
 
 procedure doLoadGameData;
@@ -1125,36 +1242,31 @@ begin
   //load TGLImages
   doLoadImages;
 
-{  EmptyBarHorizontal:=TGLImage.create(GuiFolder+'SleekBars_CC0_by_Jannax(opengameart)_empty.png',true);
-  HealthBarHorizontal:=TGLImage.create(GuiFolder+'SleekBars_CC0_by_Jannax(opengameart)_full.png',true);
-  LeftCapHorizontal:=TGLImage.create(GuiFolder+'SleekBars_CC0_by_Jannax(opengameart)_leftcap.png',true);
-  RightCapHorizontal:=TGLImage.create(GuiFolder+'SleekBars_CC0_by_Jannax(opengameart)_rightcap.png',true);}
+  EmptyBarVertical:=TGLImage.create(ApplicationData(GuiFolder+'SleekBars_CC0_by_Jannax(opengameart)_vertical_empty.png'),true);
+  HealthBarVertical:=TGLImage.create(ApplicationData(GuiFolder+'SleekBars_CC0_by_Jannax(opengameart)_vertical_full.png'),true);
+  TopCapVertical:=TGLImage.create(ApplicationData(GuiFolder+'SleekBars_CC0_by_Jannax(opengameart)_vertical_topCap.png'),true);
+  BottomCapVertical:=TGLImage.create(ApplicationData(GuiFolder+'SleekBars_CC0_by_Jannax(opengameart)_vertical_bottomCap.png'),true);
 
-  EmptyBarVertical:=TGLImage.create(GuiFolder+'SleekBars_CC0_by_Jannax(opengameart)_vertical_empty.png',true);
-  HealthBarVertical:=TGLImage.create(GuiFolder+'SleekBars_CC0_by_Jannax(opengameart)_vertical_full.png',true);
-  TopCapVertical:=TGLImage.create(GuiFolder+'SleekBars_CC0_by_Jannax(opengameart)_vertical_topCap.png',true);
-  BottomCapVertical:=TGLImage.create(GuiFolder+'SleekBars_CC0_by_Jannax(opengameart)_vertical_bottomCap.png',true);
+  imgControlBackground:=TGLImage.create(ApplicationData(GuiFolder+'Pattern_005_CC0_by_Nobiax_specular.png'),true);
+  imgControl:=TGLImage.create(ApplicationData(GuiFolder+'Controls_none_(Pattern_001_CC0_by_Nobiax_diffuse).png'),true);
+  imgControlsFire[0]:=TGLImage.create(ApplicationData(GuiFolder+'Fire_left_(Pattern_001_CC0_by_Nobiax_diffuse).png'),true);
+  imgControlsFire[1]:=TGLImage.create(ApplicationData(GuiFolder+'Fire_up_(Pattern_001_CC0_by_Nobiax_diffuse).png'),true);
+  imgControlsFire[2]:=TGLImage.create(ApplicationData(GuiFolder+'Fire_right_(Pattern_001_CC0_by_Nobiax_diffuse).png'),true);
+  imgControlsFire[3]:=TGLImage.create(ApplicationData(GuiFolder+'Fire_down_(Pattern_001_CC0_by_Nobiax_diffuse).png'),true);
+  imgControlsMove[0]:=TGLImage.create(ApplicationData(GuiFolder+'Move_left_(Pattern_001_CC0_by_Nobiax_diffuse).png'),true);
+  imgControlsMove[1]:=TGLImage.create(ApplicationData(GuiFolder+'Move_up_(Pattern_001_CC0_by_Nobiax_diffuse).png'),true);
+  imgControlsMove[2]:=TGLImage.create(ApplicationData(GuiFolder+'Move_right_(Pattern_001_CC0_by_Nobiax_diffuse).png'),true);
+  imgControlsMove[3]:=TGLImage.create(ApplicationData(GuiFolder+'Move_down_(Pattern_001_CC0_by_Nobiax_diffuse).png'),true);
 
-  imgControlBackground:=TGLImage.create(GuiFolder+'Pattern_005_CC0_by_Nobiax_specular.png',true);
-  imgControl:=TGLImage.create(GuiFolder+'Controls_none_(Pattern_001_CC0_by_Nobiax_diffuse).png',true);
-  imgControlsFire[0]:=TGLImage.create(GuiFolder+'Fire_left_(Pattern_001_CC0_by_Nobiax_diffuse).png',true);
-  imgControlsFire[1]:=TGLImage.create(GuiFolder+'Fire_up_(Pattern_001_CC0_by_Nobiax_diffuse).png',true);
-  imgControlsFire[2]:=TGLImage.create(GuiFolder+'Fire_right_(Pattern_001_CC0_by_Nobiax_diffuse).png',true);
-  imgControlsFire[3]:=TGLImage.create(GuiFolder+'Fire_down_(Pattern_001_CC0_by_Nobiax_diffuse).png',true);
-  imgControlsMove[0]:=TGLImage.create(GuiFolder+'Move_left_(Pattern_001_CC0_by_Nobiax_diffuse).png',true);
-  imgControlsMove[1]:=TGLImage.create(GuiFolder+'Move_up_(Pattern_001_CC0_by_Nobiax_diffuse).png',true);
-  imgControlsMove[2]:=TGLImage.create(GuiFolder+'Move_right_(Pattern_001_CC0_by_Nobiax_diffuse).png',true);
-  imgControlsMove[3]:=TGLImage.create(GuiFolder+'Move_down_(Pattern_001_CC0_by_Nobiax_diffuse).png',true);
+  FIWIHealthEmpty:=TGLImage.create(ApplicationData(GuiFolder+'FiwiHealth_empty.png'),true);
+  FIWIHealthFull:=TGLImage.create(ApplicationData(GuiFolder+'FiwiHealth_full.png'),true);
 
-  FIWIHealthEmpty:=TGLImage.create(GuiFolder+'FiwiHealth_empty.png',true);
-  FIWIHealthFull:=TGLImage.create(GuiFolder+'FiwiHealth_full.png',true);
+  imgPause:=TGLImage.create(ApplicationData(GuiFolder+'pause.png'),true);
 
-  imgPause:=TGLImage.create(GuiFolder+'pause.png',true);
-
-  UserPortraits[0]:=TGLImage.create(PortraitFolder+'m_CC_BY_by_noblemaster.png',true);
-  UserPortraits[1]:=TGLImage.create(PortraitFolder+'f_CC_BY_by_noblemaster.png',true);
-  UserPortraits[2]:=TGLImage.create(PortraitFolder+'cute_cat_03_CC0_by_frugalhappyfamilies.com.png',true);
-  UserPortraits[3]:=TGLImage.create(PortraitFolder+'cute_cat_05_CC0_by_frugalhappyfamilies.com.png',true);
+  UserPortraits[0]:=TGLImage.create(ApplicationData(PortraitFolder+'m_CC_BY_by_noblemaster.png'),true);
+  UserPortraits[1]:=TGLImage.create(ApplicationData(PortraitFolder+'f_CC_BY_by_noblemaster.png'),true);
+  UserPortraits[2]:=TGLImage.create(ApplicationData(PortraitFolder+'cute_cat_03_CC0_by_frugalhappyfamilies.com.png'),true);
+  UserPortraits[3]:=TGLImage.create(ApplicationData(PortraitFolder+'cute_cat_05_CC0_by_frugalhappyfamilies.com.png'),true);
 
   LoadControlsImages;
   MakeTitleScreen;
@@ -1438,6 +1550,7 @@ end;
 var RenderingBuisy:boolean=false;
 procedure doWindowRender(Container: TUIContainer);
 begin
+  GLClear([cbColor], Vector4single(0,0,0,0));
   if firstrender then doLoadGameData;
   if current_game_context = gameplay_play then begin
     if startNewGame then doStartGame;
@@ -1492,14 +1605,15 @@ end;
 {====================================================================================}
 {------------------------------------------------------------------------------------}
 
-begin
+Initialization
+
 MusicTimer:=now-1;
 firstrender:=true;
 
 InitCharSet;
 
 //music_context:=music_easy;
-Window:=TCastleWindow.create(Application);
+Window:=TCastleWindowCustom.create(Application);
 window.DoubleBuffer:=true;
 window.OnRender:=@doWindowRender;
 window.OnResize:=@doWindowResize;
@@ -1529,15 +1643,12 @@ PlayerControls[2].makeFireControls(controls_WASD);
 PlayerControls[3].makeMoveControls(controls_numbers);
 PlayerControls[3].makeFireControls(controls_cursor);
 
-
 player2Active:=false;
+
+touchArray:=TMyTouchList.create;
 
 application.TimerMilisec:=1000 div 60; //60 fps
 application.OnTimer:=@dotimer;
-{=== this will start the game ===}
-Window.Open;
-Application.Run;
-{=== ........................ ===}
 
 end.
 

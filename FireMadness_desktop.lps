@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <ProjectSession>
+    <Version Value="9"/>
+    <BuildModes Active="Default"/>
+    <Units Count="24">
+      <Unit0>
+        <Filename Value="FireMadness_desktop.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="MouseTrack_Desktop"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="37" Y="3"/>
+        <UsageCount Value="45"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="FireMadness.pas"/>
+        <IsPartOfProject Value="True"/>
+        <IsVisibleTab Value="True"/>
+        <TopLine Value="899"/>
+        <CursorPos X="39" Y="917"/>
+        <ExtraEditorCount Value="2"/>
+        <ExtraEditor1>
+          <IsVisibleTab Value="True"/>
+          <WindowIndex Value="1"/>
+          <TopLine Value="121"/>
+          <CursorPos X="26" Y="125"/>
+        </ExtraEditor1>
+        <ExtraEditor2>
+          <EditorIndex Value="-1"/>
+          <WindowIndex Value="-1"/>
+          <TopLine Value="29"/>
+          <CursorPos X="18" Y="45"/>
+        </ExtraEditor2>
+        <UsageCount Value="45"/>
+        <Loaded Value="True"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="botsdata.pas"/>
+        <IsPartOfProject Value="True"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="25"/>
+        <CursorPos X="59" Y="33"/>
+        <UsageCount Value="45"/>
+        <Loaded Value="True"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="game_controls.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="Game_controls"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="58"/>
+        <CursorPos X="84" Y="65"/>
+        <UsageCount Value="45"/>
+        <Loaded Value="True"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="general_var.pas"/>
+        <IsPartOfProject Value="True"/>
+        <EditorIndex Value="8"/>
+        <UsageCount Value="45"/>
+        <Loaded Value="True"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="gl_button.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="GL_button"/>
+        <EditorIndex Value="3"/>
+        <TopLine Value="46"/>
+        <CursorPos X="19" Y="63"/>
+        <UsageCount Value="45"/>
+        <Loaded Value="True"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="map_manager.pas"/>
+        <IsPartOfProject Value="True"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="10"/>
+        <UsageCount Value="45"/>
+      </Unit6>
+      <Unit7>
+        <Filename Value="sound_music.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="Sound_Music"/>
+        <EditorIndex Value="6"/>
+        <TopLine Value="49"/>
+        <CursorPos X="70" Y="7"/>
+        <UsageCount Value="45"/>
+        <Loaded Value="True"/>
+      </Unit7>
+      <Unit8>
+        <Filename Value="translation.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="Translation"/>
+        <EditorIndex Value="7"/>
+        <CursorPos X="6" Y="9"/>
+        <UsageCount Value="45"/>
+        <Loaded Value="True"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="myfont.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="MyFont"/>
+        <EditorIndex Value="4"/>
+        <CursorPos X="30" Y="8"/>
+        <UsageCount Value="28"/>
+        <Loaded Value="True"/>
+      </Unit9>
+      <Unit10>
+        <Filename Value="../../../VST/CGE/castle-engine/src/images/opengl/castleglimages_tglimage.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1291"/>
+        <CursorPos X="29" Y="1311"/>
+        <UsageCount Value="8"/>
+      </Unit10>
+      <Unit11>
+        <Filename Value="../../../VST/CGE/castle-engine/src/ui/castlejoysticks.pas"/>
+        <UnitName Value="CastleJoysticks"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="544"/>
+        <UsageCount Value="8"/>
+      </Unit11>
+      <Unit12>
+        <Filename Value="MouseTrack_Android.lpr"/>
+        <UnitName Value="my_fantastic_game_android"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="22" Y="5"/>
+        <UsageCount Value="8"/>
+      </Unit12>
+      <Unit13>
+        <Filename Value="../../../VST/CGE/castle-engine/src/fonts/castlefreetype.pas"/>
+        <UnitName Value="CastleFreeType"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="259"/>
+        <CursorPos X="3" Y="262"/>
+        <UsageCount Value="9"/>
+      </Unit13>
+      <Unit14>
+        <Filename Value="../../../VST/CGE/castle-engine/src/base/castlefilesutils.pas"/>
+        <UnitName Value="CastleFilesUtils"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="387"/>
+        <CursorPos X="17" Y="172"/>
+        <UsageCount Value="8"/>
+      </Unit14>
+      <Unit15>
+        <Filename Value="../../../VST/CGE/castle-engine/src/net/castledownload.pas"/>
+        <UnitName Value="CastleDownload"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="355"/>
+        <CursorPos X="3" Y="370"/>
+        <UsageCount Value="8"/>
+      </Unit15>
+      <Unit16>
+        <Filename Value="../160530_MouseTracking4/mousetrack.pas"/>
+        <UnitName Value="MouseTrack"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="106"/>
+        <CursorPos Y="69"/>
+        <UsageCount Value="15"/>
+      </Unit16>
+      <Unit17>
+        <Filename Value="../../../VST/CGE/castle-engine/src/ui/castlekeysmouse.pas"/>
+        <UnitName Value="CastleKeysMouse"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="551"/>
+        <CursorPos X="3" Y="561"/>
+        <UsageCount Value="9"/>
+      </Unit17>
+      <Unit18>
+        <Filename Value="../../../VST/CGE/castle-engine/src/fonts/opengl/castlefonts.pas"/>
+        <UnitName Value="CastleFonts"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="329"/>
+        <CursorPos X="3" Y="339"/>
+        <UsageCount Value="9"/>
+      </Unit18>
+      <Unit19>
+        <Filename Value="../../../VST/CGE/castle-engine/src/fonts/castletexturefontdata.pas"/>
+        <UnitName Value="CastleTextureFontData"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="3"/>
+        <CursorPos X="27" Y="17"/>
+        <UsageCount Value="9"/>
+      </Unit19>
+      <Unit20>
+        <Filename Value="../../../VST/CGE/castle-engine/src/ui/opengl/castlecontrols.pas"/>
+        <UnitName Value="CastleControls"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1105"/>
+        <CursorPos X="3" Y="1107"/>
+        <UsageCount Value="9"/>
+      </Unit20>
+      <Unit21>
+        <Filename Value="../../../VST/CGE/castle-engine/src/fonts/castletexturefont_djvsans_20.pas"/>
+        <UnitName Value="CastleTextureFont_DjvSans_20"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="6548"/>
+        <CursorPos X="3" Y="25"/>
+        <UsageCount Value="9"/>
+      </Unit21>
+      <Unit22>
+        <Filename Value="/home/eugene/castle-engine/src/fonts/opengl/castlefonts.pas"/>
+        <UnitName Value="CastleFonts"/>
+        <EditorIndex Value="5"/>
+        <TopLine Value="7"/>
+        <CursorPos X="21" Y="19"/>
+        <UsageCount Value="14"/>
+        <Loaded Value="True"/>
+      </Unit22>
+      <Unit23>
+        <Filename Value="/usr/share/fpcsrc/3.0.0/rtl/inc/objpash.inc"/>
+        <EditorIndex Value="-1"/>
+        <WindowIndex Value="1"/>
+        <TopLine Value="184"/>
+        <CursorPos X="23" Y="193"/>
+        <UsageCount Value="10"/>
+      </Unit23>
+    </Units>
+    <JumpHistory Count="30" HistoryIndex="28">
+      <Position1>
+        <Filename Value="FireMadness.pas"/>
+        <Caret Line="954" Column="49" TopLine="935"/>
+      </Position1>
+      <Position2>
+        <Filename Value="FireMadness.pas"/>
+        <Caret Line="91" Column="51" TopLine="271"/>
+      </Position2>
+      <Position3>
+        <Filename Value="FireMadness.pas"/>
+        <Caret Line="948" Column="19" TopLine="938"/>
+      </Position3>
+      <Position4>
+        <Filename Value="FireMadness.pas"/>
+        <Caret Line="897" Column="70" TopLine="888"/>
+      </Position4>
+      <Position5>
+        <Filename Value="FireMadness.pas"/>
+        <Caret Line="900" Column="15" TopLine="888"/>
+      </Position5>
+      <Position6>
+        <Filename Value="FireMadness.pas"/>
+        <Caret Line="904" Column="37" TopLine="888"/>
+      </Position6>
+      <Position7>
+        <Filename Value="FireMadness.pas"/>
+        <Caret Line="899" Column="36" TopLine="882"/>
+      </Position7>
+      <Position8>
+        <Filename Value="FireMadness.pas"/>
+        <Caret Line="229" Column="38" TopLine="220"/>
+      </Position8>
+      <Position9>
+        <Filename Value="FireMadness.pas"/>
+      </Position9>
+      <Position10>
+        <Filename Value="FireMadness.pas"/>
+        <Caret Line="99" Column="8" TopLine="80"/>
+      </Position10>
+      <Position11>
+        <Filename Value="FireMadness.pas"/>
+        <Caret Line="193" Column="18" TopLine="175"/>
+      </Position11>
+      <Position12>
+        <Filename Value="FireMadness.pas"/>
+        <Caret Line="184" TopLine="276"/>
+      </Position12>
+      <Position13>
+        <Filename Value="FireMadness.pas"/>
+        <Caret Line="572" Column="23" TopLine="555"/>
+      </Position13>
+      <Position14>
+        <Filename Value="FireMadness.pas"/>
+      </Position14>
+      <Position15>
+        <Filename Value="FireMadness.pas"/>
+        <Caret Line="42" Column="45" TopLine="23"/>
+      </Position15>
+      <Position16>
+        <Filename Value="FireMadness.pas"/>
+        <Caret Line="880" Column="56" TopLine="871"/>
+      </Position16>
+      <Position17>
+        <Filename Value="FireMadness.pas"/>
+        <Caret Line="408" Column="43" TopLine="398"/>
+      </Position17>
+      <Position18>
+        <Filename Value="FireMadness.pas"/>
+        <Caret Line="507" Column="16" TopLine="488"/>
+      </Position18>
+      <Position19>
+        <Filename Value="FireMadness.pas"/>
+        <Caret Line="528" Column="123" TopLine="510"/>
+      </Position19>
+      <Position20>
+        <Filename Value="FireMadness.pas"/>
+        <Caret Line="829" Column="17" TopLine="810"/>
+      </Position20>
+      <Position21>
+        <Filename Value="FireMadness.pas"/>
+        <Caret Line="899" Column="5" TopLine="840"/>
+      </Position21>
+      <Position22>
+        <Filename Value="FireMadness.pas"/>
+        <Caret Line="887" Column="29" TopLine="880"/>
+      </Position22>
+      <Position23>
+        <Filename Value="FireMadness.pas"/>
+        <Caret Line="984" Column="72" TopLine="968"/>
+      </Position23>
+      <Position24>
+        <Filename Value="FireMadness.pas"/>
+        <Caret Line="128" Column="2" TopLine="119"/>
+      </Position24>
+      <Position25>
+        <Filename Value="FireMadness.pas"/>
+        <Caret Line="942" Column="60" TopLine="931"/>
+      </Position25>
+      <Position26>
+        <Filename Value="FireMadness.pas"/>
+        <Caret Line="941" Column="62" TopLine="925"/>
+      </Position26>
+      <Position27>
+        <Filename Value="FireMadness.pas"/>
+        <Caret Line="1019" Column="53" TopLine="1005"/>
+      </Position27>
+      <Position28>
+        <Filename Value="FireMadness.pas"/>
+        <Caret Line="52" Column="15" TopLine="38"/>
+      </Position28>
+      <Position29>
+        <Filename Value="FireMadness.pas"/>
+        <Caret Line="125" Column="19" TopLine="121"/>
+      </Position29>
+      <Position30>
+        <Filename Value="FireMadness.pas"/>
+        <Caret Line="42" Column="60" TopLine="37"/>
+      </Position30>
+    </JumpHistory>
+  </ProjectSession>
+</CONFIG>
