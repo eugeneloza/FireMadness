@@ -8,6 +8,8 @@ uses {$IFDEF UNIX}cthreads,{$ENDIF}sysUtils,Classes, castleFilesUtils,
   CastleOpenAL, CastleSoundEngine, CastleTimeUtils, CastleVectors,
   general_var;
 
+const SoundExtension={$ifdef Android}'.wav'{$else}'.ogg'{$endif};
+
 type TMusic_context=(music_easy,music_mid,music_hard,music_boss,music_TitleScreen);
 type TMusicLoadThread = class(TThread)
   private
@@ -148,16 +150,17 @@ begin
   until (next_music<>old_music);
   //load the track
   case next_music of
-      0: music_name:='1_cannontube_CC-BY_by_Gundatsch.ogg';
-      1: music_name:='1_Isthissupposedtobehere_CC-BY_by_Gundatsch.ogg';
-      2: music_name:='1_misanthropy-low_CC-BY_by_Gundatsch.ogg';
-      3: music_name:='2_cannontube_loop_medium_CC-BY_by_Gundatsch.ogg';
-      4: music_name:='2_InnerCore_Low_CC-BY_by_Gundatsch.ogg';
-      5: music_name:='3_destoroya_CC-BY_by_Gundatsch.ogg';
-      6: music_name:='3_Magerbruchstand_CC-BY_by_Gundatsch.ogg';
-      7: music_name:='4_ABoarInTheBushesFull_CC-BY_by_Gundatsch_01.ogg';
-      9: music_name:='FragileCeiling-LQ_CC-BY_by_Gundatsch.ogg';
+      0: music_name:='1_cannontube_CC-BY_by_Gundatsch';
+      1: music_name:='1_Isthissupposedtobehere_CC-BY_by_Gundatsch';
+      2: music_name:='1_misanthropy-low_CC-BY_by_Gundatsch';
+      3: music_name:='2_cannontube_loop_medium_CC-BY_by_Gundatsch';
+      4: music_name:='2_InnerCore_Low_CC-BY_by_Gundatsch';
+      5: music_name:='3_destoroya_CC-BY_by_Gundatsch';
+      6: music_name:='3_Magerbruchstand_CC-BY_by_Gundatsch';
+      7: music_name:='4_ABoarInTheBushesFull_CC-BY_by_Gundatsch_01';
+      9: music_name:='FragileCeiling-LQ_CC-BY_by_Gundatsch';
   end;
+  music_name+=SoundExtension;
 
   //start music
   old_music_array_index:=new_music_array_index;
@@ -181,40 +184,51 @@ end;
 
 {---------------------------------------------------------------------------------}
 
+function GetSound(const SoundString:string):TSoundBuffer;
+begin
+  result:=SoundEngine.LoadBuffer(ApplicationData(sndFolder+SoundString+SoundExtension));
+end;
+
+function GetVoice(const VoiceString:string; var DurationVoc:TFloatTime ):TSoundBuffer;
+begin
+ result:=SoundEngine.LoadBuffer(ApplicationData(VocFolder+VoiceString+SoundExtension),DurationVoc);
+end;
+
 procedure doLoadSound;
 begin
- SndPlayerShot:= SoundEngine.LoadBuffer(ApplicationData(SndFolder+'bookOpen_CC0_by_Kenney.nl.ogg'));
- SndBotShot1:= SoundEngine.LoadBuffer(ApplicationData(SndFolder+'beltHandle1_CC0_by_Kenney.nl.ogg'));
- SndBotShot2:= SoundEngine.LoadBuffer(ApplicationData(SndFolder+'beltHandle2_CC0_by_Kenney.nl.ogg'));
- sndPlayerHit[1]:= SoundEngine.LoadBuffer(ApplicationData(SndFolder+'hit21_CC0_by_Independent.nu.ogg'));
- sndPlayerHit[2]:= SoundEngine.LoadBuffer(ApplicationData(SndFolder+'hit23_CC0_by_Independent.nu.ogg'));
- sndPlayerHit[3]:= SoundEngine.LoadBuffer(ApplicationData(SndFolder+'hit24_CC0_by_Independent.nu.ogg'));
- sndPlayerHit[4]:= SoundEngine.LoadBuffer(ApplicationData(SndFolder+'hit25_CC0_by_Independent.nu.ogg'));
- sndPlayerHit[5]:= SoundEngine.LoadBuffer(ApplicationData(SndFolder+'hit31_CC0_by_Independent.nu.ogg'));
- sndPlayerHit[6]:= SoundEngine.LoadBuffer(ApplicationData(SndFolder+'hit35_CC0_by_Independent.nu.ogg'));
- sndPlayerHitHard:= SoundEngine.LoadBuffer(ApplicationData(SndFolder+'hit34+hit37_CC0_by_Independent.nu.ogg'));
- sndBotHit[1]:= SoundEngine.LoadBuffer(ApplicationData(SndFolder+'footstep01_CC0_by_Kenney.nl.ogg'));
- sndBotHit[2]:= SoundEngine.LoadBuffer(ApplicationData(SndFolder+'footstep02_CC0_by_Kenney.nl.ogg'));
- sndBotHit[3]:= SoundEngine.LoadBuffer(ApplicationData(SndFolder+'footstep03_CC0_by_Kenney.nl.ogg'));
- sndBotHit[4]:= SoundEngine.LoadBuffer(ApplicationData(SndFolder+'footstep04_CC0_by_Kenney.nl.ogg'));
- sndBotHit[5]:= SoundEngine.LoadBuffer(ApplicationData(SndFolder+'footstep05_CC0_by_Kenney.nl.ogg'));
- sndBotHit[6]:= SoundEngine.LoadBuffer(ApplicationData(SndFolder+'footstep06_CC0_by_Kenney.nl.ogg'));
- sndBotHit[7]:= SoundEngine.LoadBuffer(ApplicationData(SndFolder+'footstep07_CC0_by_Kenney.nl.ogg'));
- sndBotHit[8]:= SoundEngine.LoadBuffer(ApplicationData(SndFolder+'footstep08_CC0_by_Kenney.nl.ogg'));
- sndBotHit[9]:= SoundEngine.LoadBuffer(ApplicationData(SndFolder+'footstep09_CC0_by_Kenney.nl.ogg'));
- sndExplosion:= SoundEngine.LoadBuffer(ApplicationData(SndFolder+'Hit_explosion_CC0_by_Independent.nu.ogg'));
- sndDisabled:=SoundEngine.LoadBuffer(ApplicationData(SndFolder+'magnet_action_flangerplus_CC0_by_legoluft.ogg'));
- sndPlayerDies:=SoundEngine.LoadBuffer(ApplicationData(VocFolder+'PlayerDie_by_EugeneLoza+Independent.nu.ogg'));
- //load voice file
+ SndPlayerShot:= GetSound('bookOpen_CC0_by_Kenney.nl');
+ SndBotShot1:= GetSound('beltHandle1_CC0_by_Kenney.nl');
+ SndBotShot2:= GetSound('beltHandle2_CC0_by_Kenney.nl');
+ sndPlayerHit[1]:= GetSound('hit21_CC0_by_Independent.nu');
+ sndPlayerHit[2]:= GetSound('hit23_CC0_by_Independent.nu');
+ sndPlayerHit[3]:= GetSound('hit24_CC0_by_Independent.nu');
+ sndPlayerHit[4]:= GetSound('hit25_CC0_by_Independent.nu');
+ sndPlayerHit[5]:= GetSound('hit31_CC0_by_Independent.nu');
+ sndPlayerHit[6]:= GetSound('hit35_CC0_by_Independent.nu');
+ sndPlayerHitHard:= GetSound('hit34+hit37_CC0_by_Independent.nu');
+ sndBotHit[1]:= GetSound('footstep01_CC0_by_Kenney.nl');
+ sndBotHit[2]:= GetSound('footstep02_CC0_by_Kenney.nl');
+ sndBotHit[3]:= GetSound('footstep03_CC0_by_Kenney.nl');
+ sndBotHit[4]:= GetSound('footstep04_CC0_by_Kenney.nl');
+ sndBotHit[5]:= GetSound('footstep05_CC0_by_Kenney.nl');
+ sndBotHit[6]:= GetSound('footstep06_CC0_by_Kenney.nl');
+ sndBotHit[7]:= GetSound('footstep07_CC0_by_Kenney.nl');
+ sndBotHit[8]:= GetSound('footstep08_CC0_by_Kenney.nl');
+ sndBotHit[9]:= GetSound('footstep09_CC0_by_Kenney.nl');
+ sndExplosion:= GetSound('Hit_explosion_CC0_by_Independent.nu');
+ sndDisabled:=GetSound('magnet_action_flangerplus_CC0_by_legoluft');
+
  nVoices:=6;
  setlength(sndVoice,nVoices);
  setlength(VoiceDuration,nVoices);
- sndVoice[0]:= SoundEngine.LoadBuffer(ApplicationData(VocFolder+'anchor_action_CC0_by_legoluft.ogg'),VoiceDuration[0]);
- sndVoice[1]:= SoundEngine.LoadBuffer(ApplicationData(VocFolder+'anchor_action_chorus_CC0_by_legoluft.ogg'),VoiceDuration[1]);
- sndVoice[2]:= SoundEngine.LoadBuffer(ApplicationData(VocFolder+'anchor_action_flanger_CC0_by_legoluft.ogg'),VoiceDuration[2]);
- sndVoice[3]:= SoundEngine.LoadBuffer(ApplicationData(VocFolder+'anchor_action_industry_CC0_by_legoluft.ogg'),VoiceDuration[3]);
- sndVoice[4]:= SoundEngine.LoadBuffer(ApplicationData(VocFolder+'exit__CC0_by_legoluft.ogg'),VoiceDuration[4]);
- sndVoice[5]:= SoundEngine.LoadBuffer(ApplicationData(VocFolder+'magnet_action_industry_CC0_by_legoluft.ogg'),VoiceDuration[5]);
+ sndPlayerDies:=GetVoice('PlayerDie_by_EugeneLoza+Independent.nu',VoiceDuration[0]{dummy});
+ //load voice file
+ sndVoice[0]:= GetVoice('anchor_action_CC0_by_legoluft',VoiceDuration[0]);
+ sndVoice[1]:= GetVoice('anchor_action_chorus_CC0_by_legoluft',VoiceDuration[1]);
+ sndVoice[2]:= GetVoice('anchor_action_flanger_CC0_by_legoluft',VoiceDuration[2]);
+ sndVoice[3]:= GetVoice('anchor_action_industry_CC0_by_legoluft',VoiceDuration[3]);
+ sndVoice[4]:= GetVoice('exit__CC0_by_legoluft',VoiceDuration[4]);
+ sndVoice[5]:= GetVoice('magnet_action_industry_CC0_by_legoluft',VoiceDuration[5]);
  //initialize Sound Engine
  SoundEngine.ParseParameters;
  SoundEngine.MinAllocatedSources := 1;

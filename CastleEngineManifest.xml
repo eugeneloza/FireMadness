@@ -11,13 +11,15 @@
     <icon path="FireMadnessIcon.ico" />
     <icon path="FireMadnessIcon.png" />
   </icons>
+  <package>
+    <exclude path="data/music/*" />
+    <exclude path="data/sound/*" />
+    <exclude path="data/voice/*" />
+    <exclude path="data/font/*" />
+  </package>
   <dependencies>
-    <dependency name="Freetype" /> <!-- freetype library, to read font files like .ttf -->
     <dependency name="Zlib" /> <!-- zlib, to read .gz files -->
     <dependency name="Png" /> <!-- libpng, to read .png files -->
-    <dependency name="Sound" /> <!-- sound library (OpenAL) -->
-    <dependency name="OggVorbis" /> <!-- vorbisfile and related libraries
-                                         to read OggVorbis compressed audio -->
   </dependencies>
   <android project_type="integrated" /> <!-- necessary for sound to work -->
 </project>

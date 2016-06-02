@@ -25,7 +25,7 @@ var Window:TCastleWindowCustom;
 
 implementation
 
-uses  Classes, SysUtils, fgl,
+uses  Classes, SysUtils, fgl, CastleLog, {CastleAndroidInternalLog,}
   {castle_base,} castleFilesUtils,
   CastleGLImages, CastleGlUtils,
   castleVectors, castleImages,
@@ -106,6 +106,7 @@ var TouchArray:TMyTouchList;
   RescaleWindow:boolean;
   LeftInterface:integer=0;
   RightInterface:integer=32;
+  LargeInterfaceSize:integer=128;
   //fonts
   BoldFont,NormalFont: TTextureFont;
 
@@ -555,6 +556,7 @@ begin
 end;
 procedure TogglePlayer1;
 begin
+  largeInterfaceSize:=2*window.height div 5;
     case CurrentDifficultyLevel of
       difficulty_easy:   difficultyLevel:=Singleplayer_easy;
       difficulty_normal: difficultyLevel:=Singleplayer_normal;
@@ -562,7 +564,11 @@ begin
       difficulty_insane: difficultyLevel:=Singleplayer_insane;
     end;
     Player2Active:=false;
-    RightInterface:=32;
+    {$ifdef Android}
+      RightInterface:=largeInterfaceSize+32;
+    {$else}
+      RightInterface:=32;
+    {$endif}
     LeftInterface:=0;
     PlayerControls[0]:=PlayerControls[2];
 end;
@@ -576,10 +582,13 @@ begin
    DifficultyLevel.EnemySpawnRateMultiplier*=hotSeatDifficultyMultiplier;
    DifficultyLevel.simultaneous_active+=1;
    Player2Active:=true;
-   LeftInterface:=32;
-   RightInterface:=32;
-   LeftInterface:=128;
-   RightInterface:=128;
+   {$ifdef Android}
+     LeftInterface:=largeInterfaceSize+32;
+     RightInterface:=largeInterfaceSize+32;
+   {$else}
+     LeftInterface:=32;
+     RightInterface:=32;
+   {$endif}
    PlayerControls[0]:=PlayerControls[3];
  end;
 end;
@@ -880,11 +889,11 @@ var PlayerBot:TPlayerBot;
     mirrorControl:boolean;
     ThisControl:TouchControlStyle;
 begin
-  if (XX>GameScreenStartX+128) and (XX<GameScreenEndX-128) then exit;
-  if XX>=GameScreenEndX-128 then begin
+  if (XX>GameScreenStartX+largeInterfaceSize) and (XX<GameScreenEndX-largeInterfaceSize) then exit;
+  if XX>=GameScreenEndX-largeInterfaceSize then begin
      if lastPlayer=1 then exit;
      PlayerBot:=bots[0] as TPlayerBot;
-     dx:=round(XX)-(Window.Width-64);
+     dx:=round(XX)-(Window.Width-largeInterfaceSize div 2);
      MirrorControl:=false;
      LastPlayer:=0;
   end
@@ -892,17 +901,17 @@ begin
      if not Player2Active then exit;
      if lastPlayer=0 then exit;
      PlayerBot:=bots[1] as TPlayerBot;
-     dx:=round(XX)-64;
+     dx:=round(XX)-largeInterfaceSize div 2;
      MirrorControl:=true;
      LastPlayer:=1;
   end;
 
   if (YY<(GameScreenEndY-GameScreenStartY)/2) {and (YY>=GameScreenStartY)} then begin
-    dy:=round(YY)-64;
+    dy:=round(YY)-largeInterfaceSize div 2;
     if MirrorControl then ThisControl:=controlmove else ThisControl:=controlfire;
   end else
-  {if (YY>GameScreenEndY-128) and (YY<=GameScreenEndY) then} begin
-    dy:=round(YY)-GameScreenEndY+64;
+  {if (YY>GameScreenEndY-largeInterfaceSize) and (YY<=GameScreenEndY) then} begin
+    dy:=round(YY)-(Window.height-largeInterfaceSize div 2);
     if MirrorControl then ThisControl:=controlfire else ThisControl:=controlmove;
   end;
   if ThisControl=controlmove then begin
@@ -938,10 +947,10 @@ begin
      if TouchArray[i].touchType=FireTouch then NewEventTouch.touchType:=MoveTouch else
      if TouchArray[i].touchType=MoveTouch then NewEventTouch.touchType:=CancelTouch;
 
-   if (LeftInterface=128) and (event.Position[0]<GameScreenStartX) then begin
+   if (LeftInterface>=largeInterfaceSize) and (event.Position[0]<GameScreenStartX) then begin
      newEventTouch.touchType:=OtherTouch;
    end else
-   if (RightInterface=128) and (event.Position[0]>GameScreenEndX) then begin
+   if (RightInterface>=largeInterfaceSize) and (event.Position[0]>GameScreenEndX) then begin
      newEventTouch.touchType:=OtherTouch;
    end;
 
@@ -1238,9 +1247,12 @@ end;
 
 procedure doLoadGameData;
 begin
+  WritelnLog('Load','font');
   doLoadFonts;
+  WritelnLog('Load','image');
   //load TGLImages
   doLoadImages;
+  WritelnLog('Load','interface');
 
   EmptyBarVertical:=TGLImage.create(ApplicationData(GuiFolder+'SleekBars_CC0_by_Jannax(opengameart)_vertical_empty.png'),true);
   HealthBarVertical:=TGLImage.create(ApplicationData(GuiFolder+'SleekBars_CC0_by_Jannax(opengameart)_vertical_full.png'),true);
@@ -1268,10 +1280,14 @@ begin
   UserPortraits[2]:=TGLImage.create(ApplicationData(PortraitFolder+'cute_cat_03_CC0_by_frugalhappyfamilies.com.png'),true);
   UserPortraits[3]:=TGLImage.create(ApplicationData(PortraitFolder+'cute_cat_05_CC0_by_frugalhappyfamilies.com.png'),true);
 
+  WritelnLog('Load','controls');
+
   LoadControlsImages;
+  WritelnLog('Load','title');
   MakeTitleScreen;
 
   //load sounds as TSoundBuffer
+  WritelnLog('Load','sound');
   doLoadSound;
   StartNewGame:=true;
   //and launch music
@@ -1279,6 +1295,7 @@ begin
   MyVoiceTimer:=now;
   //aMusicTimer:=now+1/60/60/24;
   //Music_duration:=0;  {a few seconds of silence}
+  WritelnLog('Load','finish');
 end;
 
 {------------------------------------------------------------------------------------}
@@ -1323,39 +1340,44 @@ var PlayerBot:TPlayerBot;
   end;
 
   procedure DrawInterface128(bar_x:integer);
-  const FullRange=118;
-        PadControlSize=128;
   var i:integer;
-      Median:integer;
-      ScaledMedian:single;
+      YY:integer;
   begin
-    imgControl.Draw(bar_x,0);
-    with PlayerControls[playercontrolsindex] do begin
-      if FirePressed then begin
-        if FireX=-1 then imgControlsFire[0].draw(bar_x,0);
-        if FireY= 1 then imgControlsFire[1].draw(bar_x,0);
-        if FireX= 1 then imgControlsFire[2].draw(bar_x,0);
-        if FireY=-1 then imgControlsFire[3].draw(bar_x,0);
-      end;
-    end;
     i:=0;
     repeat
-       inc(i,128);
-       imgControlBackground.draw(bar_x,i);
-    until i>window.height-128;
-    imgControl.Draw(bar_x,window.height-PadControlSize);
+       inc(i,largeInterfaceSize);
+       imgControlBackground.draw(bar_x,i,largeInterfaceSize,largeInterfaceSize);
+    until i>window.height-largeInterfaceSize;
+
+    if bar_x=0 then YY:=window.height-largeInterfaceSize else YY:=0;
+    imgControl.Draw(bar_x,YY,largeInterfaceSize,largeInterfaceSize);
+    with PlayerControls[playercontrolsindex] do begin
+      if FirePressed then begin
+        if FireX=-1 then imgControlsFire[0].draw(bar_x,YY,largeInterfaceSize,largeInterfaceSize);
+        if FireY= 1 then imgControlsFire[1].draw(bar_x,YY,largeInterfaceSize,largeInterfaceSize);
+        if FireX= 1 then imgControlsFire[2].draw(bar_x,YY,largeInterfaceSize,largeInterfaceSize);
+        if FireY=-1 then imgControlsFire[3].draw(bar_x,YY,largeInterfaceSize,largeInterfaceSize);
+      end;
+    end;
+
+    if bar_x=0 then YY:=0 else YY:=window.height-largeInterfaceSize;
+    imgControl.Draw(bar_x,YY,largeInterfaceSize,largeInterfaceSize);
     with PlayerControls[playercontrolsindex] do begin
       if MovePressed then begin
-        if MoveX=-1 then imgControlsMove[0].draw(bar_x,window.height-PadControlSize);
-        if MoveY= 1 then imgControlsMove[1].draw(bar_x,window.height-PadControlSize);
-        if MoveX= 1 then imgControlsMove[2].draw(bar_x,window.height-PadControlSize);
-        if MoveY=-1 then imgControlsMove[3].draw(bar_x,window.height-PadControlSize);
+        if MoveX=-1 then imgControlsMove[0].draw(bar_x,YY,largeInterfaceSize,largeInterfaceSize);
+        if MoveY= 1 then imgControlsMove[1].draw(bar_x,YY,largeInterfaceSize,largeInterfaceSize);
+        if MoveX= 1 then imgControlsMove[2].draw(bar_x,YY,largeInterfaceSize,largeInterfaceSize);
+        if MoveY=-1 then imgControlsMove[3].draw(bar_x,YY,largeInterfaceSize,largeInterfaceSize);
       end;
     end;
     if bar_x=0 then
-      DrawHealthBar32(128-32,PadControlSize,window.height-PadControlSize)
+      DrawHealthBar32(largeInterfaceSize,0,window.height)
     else
-      DrawHealthBar32(bar_x,PadControlSize,window.height-PadControlSize);
+      DrawHealthBar32(bar_x-32,0,window.height);
+{    if bar_x=0 then
+      DrawHealthBar32(largeInterfaceSize-32,PadControlSize,window.height-PadControlSize)
+    else
+      DrawHealthBar32(bar_x,PadControlSize,window.height-PadControlSize);}
 
 {    LeftCapHorizontal.draw(bar_x,GameScreenEndY-PadControlSize-64);
     RightCapHorizontal.draw(bar_x+FullRange+5,GameScreenEndY-PadControlSize-64);
@@ -1384,7 +1406,7 @@ begin
     PlayerBot:=bots[0] as TPlayerBot;
     PlayerControlsIndex:=0;
     if RightInterface=32 then DrawHealthBar32(GameScreenEndX,gameScreenStartY,GameScreenEndY) else
-    if RightInterface=128 then DrawInterface128(Window.width-128);
+    if RightInterface>=largeInterfaceSize then DrawInterface128(Window.width-largeInterfaceSize);
   end;
   if LeftInterface>0 then begin
     //if 2 players, left interface is for player2 else - only player
@@ -1396,13 +1418,8 @@ begin
       PlayerControlsIndex:=0;
     end;
     if RightInterface=32 then DrawHealthBar32(GameScreenStartX-32,gameScreenStartY,GameScreenEndY) else
-    if RightInterface=128 then DrawInterface128(0);
+    if RightInterface>=largeInterfaceSize then DrawInterface128(0);
   end;
-{  PlayerBot:=bots[0] as TPlayerBot;
-  medianW:=round((GameScreenEndX-GameScreenStartX)*PlayerBot.hp / PlayerBot.maxHp);
-  median128:=round(118*PlayerBot.hp / PlayerBot.maxHp);
-  HealthBar.Draw(GameScreenStartX+0,window.height-32,medianW,32,0,0,median128,32);
-  emptyBar.Draw(GameScreenStartX+medianW,window.height-32,(GameScreenEndX-GameScreenStartX)-medianW,32,median128,0,118,32);}
 end;
 
 procedure doDisplayImages;
@@ -1605,50 +1622,72 @@ end;
 {====================================================================================}
 {------------------------------------------------------------------------------------}
 
+procedure ApplicationInitialize;
+begin
+  InitializeLog;
+  WritelnLog('start','init');
+{  AndroidLog(alInfo, 'blah blah' + LineEnding);}
+
+  MusicTimer:=now-1;
+  firstrender:=true;
+
+  InitCharSet;
+
+  //music_context:=music_easy;
+  //window.DoubleBuffer:=true;
+  window.OnRender:=@doWindowRender;
+  window.OnResize:=@doWindowResize;
+
+  window.OnPress:=@MenuKeyPress;
+  window.onRelease:=@MenuKeyRelease;
+  window.OnMotion:=nil;
+
+
+  EnableJoysticks;
+  Joysticks.OnAxisMove := @TEventsHandler(nil).JoyMove;
+
+  //map:=map_bedRoom;
+
+  SetDifficultyLevelNormal;
+  togglePlayer1;
+
+  PlayerControls[2]:=TPlayerControls.create;
+  PlayerControls[3]:=TPlayerControls.create;
+  PlayerControls[0]:=PlayerControls[2];
+  PlayerControls[1]:=TPlayerControls.create;
+  PlayerControls[1].makeMoveControls(controls_TFGH);
+  PlayerControls[1].makeFireControls(controls_WASD);
+  PlayerControls[2].makeMoveControls(controls_cursor);
+  PlayerControls[2].makeFireControls(controls_WASD);
+  PlayerControls[3].makeMoveControls(controls_numbers);
+  PlayerControls[3].makeFireControls(controls_cursor);
+
+  player2Active:=false;
+
+  touchArray:=TMyTouchList.create;
+
+  application.TimerMilisec:=1000 div 60; //60 fps
+  application.OnTimer:=@dotimer;
+
+  WritelnLog('start','init finished');
+end;
+
+function MyGetApplicationName: string;
+begin
+  Result := 'Fire Madness';
+end;
+
 Initialization
-
-MusicTimer:=now-1;
-firstrender:=true;
-
-InitCharSet;
-
-//music_context:=music_easy;
+OnGetApplicationName := @MyGetApplicationName;
 Window:=TCastleWindowCustom.create(Application);
-window.DoubleBuffer:=true;
-window.OnRender:=@doWindowRender;
-window.OnResize:=@doWindowResize;
-
-window.OnPress:=@MenuKeyPress;
-window.onRelease:=@MenuKeyRelease;
-window.OnMotion:=nil;
-
-EnableJoysticks;
-Joysticks.OnAxisMove := @TEventsHandler(nil).JoyMove;
-
-//map:=map_bedRoom;
-
-window.Width:=800;
-window.height:=600;
-
-SetDifficultyLevelNormal;
-
-PlayerControls[2]:=TPlayerControls.create;
-PlayerControls[3]:=TPlayerControls.create;
-PlayerControls[0]:=PlayerControls[2];
-PlayerControls[1]:=TPlayerControls.create;
-PlayerControls[1].makeMoveControls(controls_TFGH);
-PlayerControls[1].makeFireControls(controls_WASD);
-PlayerControls[2].makeMoveControls(controls_cursor);
-PlayerControls[2].makeFireControls(controls_WASD);
-PlayerControls[3].makeMoveControls(controls_numbers);
-PlayerControls[3].makeFireControls(controls_cursor);
-
-player2Active:=false;
-
-touchArray:=TMyTouchList.create;
-
-application.TimerMilisec:=1000 div 60; //60 fps
-application.OnTimer:=@dotimer;
+{ This should be done as early as possible to mark our log lines correctly. }
+{$ifdef Android}
+{$else}
+  window.Width:=800;
+  window.height:=600;
+{$endif}
+Application.MainWindow := Window;
+Application.OnInitialize := @ApplicationInitialize;
 
 end.
 

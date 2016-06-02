@@ -11,9 +11,15 @@ const BotFolder= 'bots'+pathdelim;
       GuiFolder= 'gui'+pathdelim;
       KeyFolder= GuiFolder+'keys'+pathdelim;
       MapFolder= 'map'+pathdelim;
-      MusFolder= 'music'+pathdelim;
-      SndFolder= 'sound'+pathdelim;
-      VocFolder= 'voice'+pathdelim;
+      {$ifdef Android}
+        MusFolder= 'WAV'+pathdelim+'music'+pathdelim;
+        SndFolder= 'WAV'+pathdelim+'sound'+pathdelim;
+        VocFolder= 'WAV'+pathdelim+'voice'+pathdelim;
+      {$else}
+        MusFolder= 'music'+pathdelim;
+        SndFolder= 'sound'+pathdelim;
+        VocFolder= 'voice'+pathdelim;
+      {$endif}
       TitlescreenFolder= 'titlescreen'+pathdelim;
       TranslationFolder= 'translation'+pathdelim;
       PortraitFolder= 'portrait'+pathdelim;

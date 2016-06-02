@@ -55,7 +55,7 @@ const Singleplayer_easy:TDifficulty=
   EnemyHealthMultiplier:0.8;
   PlayerHealthMultiplier:1);
 
-const hotSeatDifficultyMultiplier=1.5;
+const hotSeatDifficultyMultiplier=1.1;
 
 {maxx=2*(5+1); {not odd}
 maxy=2*(4+1);}
