@@ -6,7 +6,7 @@ interface
 
 uses SysUtils, castleFilesUtils,
      CastleGLImages,
-     CastleOpenAL, CastleSoundEngine, {CastleTimeUtils, }CastleVectors,
+     CastleSoundEngine, {CastleTimeUtils, }CastleVectors,
      Game_controls, general_var,sound_music, map_manager;
 
 const missle_explosion=10;

@@ -30,7 +30,7 @@ uses  Classes, SysUtils, fgl, CastleLog, {CastleAndroidInternalLog,}
   CastleGLImages, CastleGlUtils,
   castleVectors, castleImages,
   CastleKeysMouse, CastleJoysticks,
-  CastleFreeType, CastleFonts, CastleUnicode, CastleStringUtils,
+  CastleFonts, CastleUnicode, CastleStringUtils,
   Game_controls, general_var, Sound_Music, botsdata,
   map_manager, Translation, GL_button, MyFont;
 

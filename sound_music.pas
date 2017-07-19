@@ -5,7 +5,7 @@ unit Sound_Music;
 interface
 
 uses {$IFDEF UNIX}cthreads,{$ENDIF}sysUtils,Classes, castleFilesUtils,
-  CastleOpenAL, CastleSoundEngine, CastleTimeUtils, CastleVectors,
+  CastleSoundEngine, CastleTimeUtils, CastleVectors,
   general_var;
 
 const SoundExtension={$ifdef Android}'.wav'{$else}'.ogg'{$endif};
