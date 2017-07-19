@@ -30,7 +30,7 @@ uses  Classes, SysUtils, fgl, CastleLog, {CastleAndroidInternalLog,}
   CastleGLImages, CastleGlUtils,
   castleVectors, castleImages,
   CastleKeysMouse, CastleJoysticks,
-  CastleFreeType, CastleFonts, CastleUnicode, CastleStringUtils,
+  CastleFonts, CastleUnicode, CastleStringUtils,
   Game_controls, general_var, Sound_Music, botsdata,
   map_manager, Translation, GL_button, MyFont;
 
@@ -1561,7 +1561,7 @@ begin
  if Window.Height<MinWindowHeight then Window.Height:=MinWindowHeight;
  RescaleWindow:=true;
  PauseMode:=true;
- window.doRender;
+ window.Invalidate;
 end;
 
 var RenderingBuisy:boolean=false;
@@ -1610,7 +1610,7 @@ end;
 
 procedure doTimer;
 begin
-  window.DoRender;
+  window.Invalidate;
 
   if (musicTimer<now) then doLoadNewMusic;
   if isMusicStart then doStartMusic;

@@ -8,7 +8,7 @@ uses
   Classes, SysUtils,
   CastleGLImages, CastleFilesUtils,
   castleVectors, {castleImages,}
-  CastleFreeType, CastleFonts, MyFont, CastleUnicode, CastleStringUtils,
+  CastleFonts, MyFont, CastleUnicode, CastleStringUtils,
   Translation, general_var;
 
 type TSimpleProcedure=procedure;
